@@ -12,23 +12,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const radialButton = document.getElementById('radialButton');
     const symmetryOptions = document.getElementById('symmetryOptions');
     const radialOptions = document.getElementById('radialOptions');
-    const petalSlider = document.getElementById('petalSlider');
-    const symmetryInput = document.getElementById('symmetryInput'); // Updated to symmetryInput
+    const petalInput = document.getElementById('petalInput'); // Updated to petalInput
+    const symmetryInput = document.getElementById('symmetryInput');
     const clearButton = document.getElementById('clearButton');
 
     symmetriesButton.addEventListener('click', () => toggleMode(Mode.SYMMETRY, symmetryOptions, radialOptions));
     radialButton.addEventListener('click', () => toggleMode(Mode.RADIAL, radialOptions, symmetryOptions));
-    petalSlider.addEventListener('input', event => {
-        if (currentMode === Mode.RADIAL) petals = parseInt(event.target.value, 10);
+
+    petalInput.addEventListener('input', event => { // Updated to petalInput
+        if (currentMode === Mode.RADIAL) {
+            const value = parseInt(event.target.value, 10);
+            if (value >= 2) petals = value; // Ensure at least 2 petals
+        }
     });
-    symmetryInput.addEventListener('input', event => { // Updated to listen for 'input' event
+
+    symmetryInput.addEventListener('input', event => {
         if (currentMode === Mode.SYMMETRY) {
             const value = parseInt(event.target.value, 10);
             if (value >= 2) symmetry = value; // Ensure at least 2-way symmetry
         }
     });
+
     clearButton.addEventListener('click', clearCanvas);
 });
+
 
 
 function toggleMode(mode, showElement, hideElement) {
