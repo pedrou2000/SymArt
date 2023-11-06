@@ -4,7 +4,7 @@ const Mode = {
 };
 
 let currentMode = Mode.SYMMETRY;
-let symmetry = 16;
+let symmetry = 64;
 let petals = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -51,9 +51,6 @@ toggleSidebarButton.addEventListener('click', () => {
 });
 
 
-
-
-
 function toggleMode(mode, showElement, hideElement) {
     currentMode = mode;
     showElement.classList.toggle('collapse');
@@ -64,17 +61,9 @@ function setup() {
     const canvasContainer = document.getElementById('canvas-container');
     const cw = canvasContainer.offsetWidth;
     const ch = canvasContainer.offsetHeight;
-    
     // Create a canvas that is smaller than the container dimensions
-    // For example, 90% of the width and height
     const canvas = createCanvas(cw, ch);
     canvas.parent('canvas-container'); // This makes sure the canvas is placed inside the 'canvas-container' div
-
-    // Since the container uses flexbox, no need to set absolute position styles
-    // canvas.style('position', 'absolute'); // These lines can be removed
-    // canvas.style('left', '0px'); // These lines can be removed
-    // canvas.style('top', '0px'); // These lines can be removed
-
 }
 
 
