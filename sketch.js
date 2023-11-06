@@ -36,6 +36,22 @@ document.addEventListener('DOMContentLoaded', () => {
     clearButton.addEventListener('click', clearCanvas);
 });
 
+const toggleSidebarButton = document.getElementById('toggleSidebarButton');
+const sidebar = document.getElementById('sidebar');
+const canvasContainer = document.getElementById('canvas-container');
+
+toggleSidebarButton.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    const sidebarWidth = sidebar.classList.contains('collapsed') ? 0 : 0; // Adjust to your sidebar width
+    canvasContainer.style.marginLeft = `${sidebarWidth}px`; // Set margin-left based on the sidebar width
+    const canvas = document.getElementById('defaultCanvas0');
+    if (canvas) {
+        canvas.style.left = `${sidebarWidth}px`; // Adjust canvas position based on sidebar width
+    }
+});
+
+
+
 
 
 function toggleMode(mode, showElement, hideElement) {
@@ -84,9 +100,15 @@ function drawSymmetricalLines(x, y, px, py) {
 }
 
 function draw() {
-    if (mouseIsPressed && mouseOverCanvas()) {
+    // Only allow drawing if the sidebar is collapsed or if the mouse is not over the sidebar
+    if (mouseIsPressed && mouseOverCanvas() && !mouseIsOverSidebar()) {
         drawSymmetricalLines(mouseX - width / 2, mouseY - height / 2, pmouseX - width / 2, pmouseY - height / 2);
     }
+}
+
+// Helper function to determine if the mouse is over the sidebar
+function mouseIsOverSidebar() {
+    return sidebar.classList.contains('collapsed') ? false : mouseX <= sidebar.offsetWidth;
 }
 
 function mouseOverCanvas() {
@@ -99,17 +121,15 @@ function mouseOverCanvas() {
 
 
 function windowResized() {
-    // No need to subtract the sidebar width anymore
-    resizeCanvas(windowWidth, windowHeight);
-
-    // Update canvas position
+    const sidebarWidth = sidebar.classList.contains('collapsed') ? 0 : 250; // Adjust to your sidebar width
+    resizeCanvas(windowWidth - sidebarWidth, windowHeight);
+    
     const canvas = document.getElementById('defaultCanvas0');
     if (canvas) {
-        canvas.style('position', 'absolute');
-        canvas.style('left', '250px'); // Position the canvas right next to the sidebar
-        canvas.style('top', '0px');
+        canvas.style.left = `${sidebarWidth}px`; // Adjust canvas position based on sidebar width
     }
 }
+
 
 
 

@@ -6,6 +6,13 @@ body {
     overflow: hidden; /* Prevent scrolling */
 }
 
+#toggleSidebarButton {
+    position: fixed; /* Fixed position so it floats */
+    top: 10px; /* Distance from the top of the viewport */
+    left: 10px; /* Initially, place it near the left edge of the viewport */
+    z-index: 20; /* Ensure it's above all other elements */
+}
+
 .sidebar {
     position: fixed; /* Fixed position to the left */
     left: 0;
@@ -61,3 +68,14 @@ canvas {
 button {
     padding: 5px 10px;
 }
+
+.sidebar.collapsed {
+    width: 0;
+    padding: 0;
+    visibility: hidden;
+}
+
+.canvas-container.expanded {
+    margin-left: 0;
+}
+
