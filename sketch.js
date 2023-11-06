@@ -5,11 +5,58 @@ const SYMMETRY_OPTIONS = {
     EIGHT_WAY: 8,
     TEN_WAY: 10,
     TWELVE_WAY: 12,
-    RADIAL: 'radial', // Radial symmetry option
 };
 
+// Define the mode of drawing and the default values for symmetries and petals
+const Mode = {
+    SYMMETRY: 'symmetry',
+    RADIAL: 'radial'
+};
+
+let currentMode = Mode.SYMMETRY; // Default mode
 let symmetry = SYMMETRY_OPTIONS.FOUR_WAY; // Default symmetry
 let petals = 10; // Default number of petals
+
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const symmetriesButton = document.getElementById('symmetriesButton');
+    const radialButton = document.getElementById('radialButton');
+    const symmetryOptions = document.getElementById('symmetryOptions');
+    const radialOptions = document.getElementById('radialOptions');
+    const petalSlider = document.getElementById('petalSlider');
+    const symmetrySelector = document.getElementById('symmetrySelector');
+  
+    // Button to toggle symmetry mode and its options
+    symmetriesButton.addEventListener('click', function() {
+      currentMode = Mode.SYMMETRY;
+      symmetryOptions.classList.toggle('collapse');
+      radialOptions.classList.add('collapse');
+    });
+  
+    // Button to toggle radial mode and its options
+    radialButton.addEventListener('click', function() {
+      currentMode = Mode.RADIAL;
+      radialOptions.classList.toggle('collapse');
+      symmetryOptions.classList.add('collapse');
+    });
+  
+    // Event listener for the petal slider, only relevant in radial mode
+    petalSlider.addEventListener('input', function(event) {
+      if (currentMode === Mode.RADIAL) {
+        petals = event.target.value;
+      }
+    });
+  
+    // Event listener for the symmetry selector, only relevant in symmetry mode
+    symmetrySelector.addEventListener('change', function(event) {
+      if (currentMode === Mode.SYMMETRY) {
+        symmetry = event.target.value;
+      }
+    });
+  
+    // ...rest of the setup and drawing functions
+  });
+
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -43,17 +90,18 @@ function setSymmetry(newSymmetry) {
     symmetry = newSymmetry;
 }
 
+// Modify the drawSymmetricalLines function to check for currentMode
 function drawSymmetricalLines(x, y, px, py) {
-    if (symmetry === SYMMETRY_OPTIONS.RADIAL) {
-        drawRadialLines(x, y, px, py);
+    if (currentMode === Mode.RADIAL) {
+      drawRadialLines(x, y, px, py);
     } else {
-        const angle = TWO_PI / symmetry;
-        for (let i = 0; i < symmetry; i++) {
-            drawLineAtAngle(x, y, px, py, angle * i);
-            drawLineAtAngle(x, y, px, py, angle * i, true);
-        }
+      const angle = TWO_PI / symmetry;
+      for (let i = 0; i < symmetry; i++) {
+        drawLineAtAngle(x, y, px, py, angle * i);
+        drawLineAtAngle(x, y, px, py, angle * i, true);
+      }
     }
-}
+  }
 
 function drawRadialLines(x, y, px, py) {
     const angle = TWO_PI / petals;
