@@ -35,7 +35,10 @@ function setupInputListeners() {
 
 function setupSidebarToggle() {
     const toggleSidebarButton = document.getElementById('toggleSidebarButton');
-    toggleSidebarButton.addEventListener('click', toggleSidebar);
+    toggleSidebarButton.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        adjustCanvasLayout();
+    });
 }
 
 function toggleMode(mode) {
@@ -88,14 +91,15 @@ function toggleSidebar() {
     adjustCanvasLayout(sidebar, canvasContainer);
 }
 
-function adjustCanvasLayout(sidebar, canvasContainer) {
+function adjustCanvasLayout() {
     const sidebarWidth = sidebar.classList.contains('collapsed') ? 0 : sidebar.offsetWidth;
-    canvasContainer.style.marginLeft = `${sidebarWidth}px`;
+    canvasContainer.style.marginLeft = `${sidebarWidth}px`; // Set margin-left based on the sidebar width
     const canvas = document.getElementById('defaultCanvas0');
     if (canvas) {
-        canvas.style.left = `${sidebarWidth}px`;
+        canvas.style.left = `0px`; // Keep canvas position fixed at 0px from the left
     }
 }
+
 // Canvas and drawing related functions
 function setup() {
     createCanvasInContainer();
