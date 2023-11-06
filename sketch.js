@@ -75,7 +75,6 @@ function setup() {
     // canvas.style('left', '0px'); // These lines can be removed
     // canvas.style('top', '0px'); // These lines can be removed
 
-    background(200); // Light grey background for the canvas
 }
 
 
