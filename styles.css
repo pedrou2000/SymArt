@@ -1,5 +1,13 @@
+body {
+    display: flex; /* Use flexbox layout */
+    flex-direction: row; /* Arrange children (sidebar and canvas-container) in a row */
+    margin: 0; /* Remove default margin */
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent scrolling */
+}
+
 .sidebar {
-    position: absolute;
+    position: fixed; /* Fixed position to the left */
     left: 0;
     top: 0;
     bottom: 0;
@@ -14,14 +22,23 @@
 }
 
 .canvas-container {
+    flex-grow: 1; /* Take up remaining space */
     margin-left: 250px; /* Same as the width of the sidebar */
+    position: relative; /* Position relative to the parent */
+    overflow: hidden; /* Prevent scrolling inside the canvas container */
+}
+
+/* Adjust the canvas position to fill the container */
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 /* Style the select, range input and button */
 #symmetrySelector, #petalSlider, #clearButton {
     margin-bottom: 20px; /* Add some space below the controls */
 }
-
 
 #controls {
     margin: 10px;
@@ -40,9 +57,4 @@
 
 button {
     padding: 5px 10px;
-}
-
-/* Adjust the canvas margin to not overlap with the controls */
-canvas {
-    margin-top: 60px; /* Adjust as necessary based on the size of your controls */
 }

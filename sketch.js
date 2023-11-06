@@ -45,8 +45,13 @@ function toggleMode(mode, showElement, hideElement) {
 }
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
+    const canvas = createCanvas(windowWidth - document.getElementById('sidebar').offsetWidth, windowHeight);
+    canvas.parent('canvas-container'); // This makes sure the canvas is placed inside the 'canvas-container' div
+    background(240); // Use a light gray background to make the canvas area clear visually
+    stroke(0); // Set line color to black for drawing
+    strokeWeight(1); // Set line weight
 }
+
 
 function clearCanvas() {
     clear();
@@ -79,3 +84,4 @@ function mouseOverCanvas() {
 function windowResized() {
     resizeCanvas(windowWidth - document.getElementById('sidebar').offsetWidth, windowHeight);
 }
+
