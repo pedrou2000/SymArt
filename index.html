@@ -9,55 +9,70 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symmetrical Drawing App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
 <body>
 
-
-    <button id="toggleSidebarButton" class="btn">
-        <i id="gearIcon" class="fas fa-cog"></i> <!-- Add an id here -->
+    <!-- Modernized toggle button -->
+    <button id="toggleSidebarButton" class="btn icon-button">
+        <i id="gearIcon" class="fas fa-cog"></i>
     </button>
     
-    <div id="sidebar" class="sidebar">
+    <!-- Sidebar with updated class names for better UX -->
+    <aside id="sidebar" class="sidebar">
+        <section id="controls" class="container controls">
+            <!-- Reflective Symmetry Control -->
+            <div class="control-group">
+                <button id="symmetriesButton" class="btn btn-primary control-button text-center">Reflective Symmetry</button>
+                <div id="symmetryOptions" class="control-options collapse">
+                    <label for="symmetryInput" class="control-label text-center">
+                        <i class="fas fa-info-circle" title="Number of mirror lines across which the drawing is reflected."></i>
+                        Axes of Symmetry:
+                    </label>
+                    <input id="symmetryInput" type="number" class="form-control control-input" min="2" value="" />
+                </div>
+            </div>
+            
+            <!-- Radial Symmetry Control -->
+            <div class="control-group">
+                <button id="radialButton" class="btn btn-primary control-button text-center">Radial Symmetry</button>
+                <div id="radialOptions" class="control-options collapse">
+                    <label for="petalInput" class="control-label text-center">
+                        <i class="fas fa-info-circle" title="Number of sectors in the radial symmetry."></i>
+                        Radial Divisions:
+                    </label>
+                    <input id="petalInput" type="number" class="form-control control-input" min="2" value="" />
+                </div>
+            </div>
 
-        <div id="controls" class="container mt-4">
-            <div class="row mb-2">
-                <div class="col">
-                    <!-- Updated button text for clarity -->
-                    <button id="symmetriesButton" class="btn btn-primary">Reflective Symmetry</button>
-                </div>
+            <!-- Download Button in HTML -->
+            <div class="control-group">
+                <button id="downloadButton" class="btn btn-success control-button text-center">Download</button>
             </div>
-            <div id="symmetryOptions" class="row collapse mb-2">
-                <div class="col">
-                    <!-- Updated label text for clarity -->
-                    <label for="symmetryInput">Number of Axes of Symmetry:</label>
-                    <input id="symmetryInput" type="number" class="form-control" min="2" value="" />
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="col">
-                    <!-- Updated button text for clarity -->
-                    <button id="radialButton" class="btn btn-primary">Radial Symmetry</button>
-                </div>
-            </div>
-            <div id="radialOptions" class="row collapse mb-2">
-                <div class="col">
-                    <!-- Updated label text for mathematical accuracy -->
-                    <label for="petalInput">Number of Radial Divisions:</label>
-                    <input id="petalInput" type="number" class="form-control" min="2" value="" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <button id="clearButton" class="btn btn-danger">Clear</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
 
-    <div id="canvas-container" class="canvas-container">
+            
+            <!-- Clear Canvas Button -->
+            <div class="control-group">
+                <button id="clearButton" class="btn btn-danger control-button text-center">Clear</button>
+            </div>
+        </section>
+    </aside>
+
+    <!-- Canvas container -->
+    <main id="canvas-container" class="canvas-container">
         <!-- Canvas will be inserted here by p5.js -->
-    </div>
+    </main>
 
     <script src="sketch.js"></script>
 </body>
 </html>
+

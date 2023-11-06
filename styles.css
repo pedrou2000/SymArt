@@ -1,92 +1,94 @@
 body {
-    display: flex; /* Use flexbox layout */
-    flex-direction: row; /* Arrange children (sidebar and canvas-container) in a row */
-    margin: 0; /* Remove default margin */
-    height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Prevent scrolling */
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
 }
 
-#toggleSidebarButton {
+.center-text {
+    text-align: center;
+    display: block;
+    width: 100%;
+}
+
+.icon-button {
     position: fixed;
-    top: 0px;
-    left: 0px;
+    top: 5px;
+    left: 5px;
     z-index: 20;
-    background-color: transparent; /* No background */
-    border: none; /* Remove border */
-    color: gray; /* Set icon color to gray */
-    padding: 5px; /* Adjust padding to your preference */
-    font-size: 24px; /* Adjust size of the icon */
-    outline: none; /* Remove the outline to ensure there's no border when focused */
+    background-color: transparent;
+    border: none;
+    color: gray;
+    font-size: 24px;
+    outline: none;
+    transition: color 0.3s ease;
 }
 
-#toggleSidebarButton:hover {
-    color: darkgray; /* Change color when hovering for visual feedback */
+.icon-button:hover {
+    color: darkgray;
 }
-
 
 .sidebar {
-    position: fixed; /* Fixed position to the left */
+    position: fixed;
     left: 0;
-    top: 0;
-    bottom: 0;
-    width: 250px; /* Adjust the width as needed */
-    background-color: #f4f4f4; /* Light grey background */
+    top: 50px; /* Start the sidebar 50px from the top */
+    bottom: 50px; /* Give some space at the bottom as well */
+    width: 250px;
+    background-color: #f4f4f4;
     padding: 20px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Add some shadow to the sidebar */
-    z-index: 10; /* Ensure the sidebar is above the canvas */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 10;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-}
-
-.canvas-container {
-    display: flex; /* Use flexbox layout */
-    justify-content: center; /* Center children horizontally */
-    align-items: center; /* Center children vertically */
-    flex-grow: 1; /* Take up remaining space */
-    position: relative; /* Position relative to the parent */
-    overflow: hidden; /* Prevent scrolling inside the canvas container */
-}
-
-
-/* Adjust the canvas position to fill the container */
-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-/* Style the select, range input and button */
-#symmetrySelector, #petalSlider, #clearButton {
-    margin-bottom: 20px; /* Add some space below the controls */
-}
-
-#controls {
-    margin: 10px;
-}
-
-#symmetrySelector {
-    width: auto; /* Bootstrap's form-control class handles the width */
-    padding: 5px;
-    margin-right: 10px;
-}
-
-#petalSlider {
-    width: auto; /* Bootstrap's custom-range class handles the width */
-    margin: 5px 10px;
-}
-
-button {
-    padding: 5px 10px;
+    justify-content: flex-start;
+    transition: transform 0.3s ease;
+    border-radius: 0 0 10px 10px; /* Round the bottom corners */
+    overflow: auto; /* Allows scrolling if content overflows */
 }
 
 .sidebar.collapsed {
-    width: 0;
-    padding: 0;
-    visibility: hidden;
+    transform: translateX(-100%);
 }
 
-.canvas-container.expanded {
-    margin-left: 0;
+.canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    position: relative;
+    transition: margin-left 0.3s ease;
 }
 
+.controls {
+    transition: opacity 0.3s ease;
+}
+
+.control-group {
+    margin-bottom: 20px;
+}
+
+.control-button {
+    width: 100%;
+    text-align: left;
+}
+
+.control-options {
+    padding: 10px 0;
+}
+
+.control-label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px; /* Smaller sidebar for smaller screens */
+    }
+    
+    .icon-button {
+        font-size: 20px; /* Smaller icon for smaller screens */
+    }
+}

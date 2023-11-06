@@ -114,15 +114,20 @@ function mouseIsOverGearIcon() {
 
 
 function windowResized() {
-    const sidebarWidth = sidebar.classList.contains('collapsed') ? 0 : 250; // Adjust to your sidebar width
-    resizeCanvas(windowWidth - sidebarWidth, windowHeight);
-    
-    const canvas = document.getElementById('defaultCanvas0');
-    if (canvas) {
-        canvas.style.left = `${sidebarWidth}px`; // Adjust canvas position based on sidebar width
-    }
+    resizeCanvas(windowWidth, windowHeight);
 }
 
 
 
 
+// Download Function in JavaScript
+function downloadCanvas() {
+    // This will prompt the user to save the canvas as 'myCanvas.png'
+    saveCanvas('myCanvas', 'png');
+}
+
+// Binding the function to the button
+document.addEventListener('DOMContentLoaded', () => {
+    const downloadButton = document.getElementById('downloadButton');
+    downloadButton.addEventListener('click', downloadCanvas);
+});
