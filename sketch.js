@@ -34,6 +34,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     clearButton.addEventListener('click', clearCanvas);
+
+    const bgColorButton = document.getElementById('bgColorButton');
+    const bgColorOptions = document.getElementById('bgColorOptions');
+
+    // Toggle the color picker display when the button is clicked
+    bgColorButton.addEventListener('click', () => {
+        const isCollapsed = bgColorOptions.classList.contains('collapse');
+        if (isCollapsed) {
+            // Show the color picker
+            bgColorOptions.classList.remove('collapse');
+        } else {
+            // Hide the color picker
+            bgColorOptions.classList.add('collapse');
+        }
+    });
+
+    // Change the background color without collapsing the picker
+    const bgColorPicker = document.getElementById('bgColorPicker');
+    bgColorPicker.addEventListener('input', event => {
+        background(event.target.value);
+    });
 });
 
 const toggleSidebarButton = document.getElementById('toggleSidebarButton');
@@ -131,3 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadButton = document.getElementById('downloadButton');
     downloadButton.addEventListener('click', downloadCanvas);
 });
+
+
+function changeBackgroundColor(event) {
+    const newColor = event.target.value;
+    background(newColor);
+}
+
