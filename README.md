@@ -1,10 +1,12 @@
 # SymArt
-A project to create geometrical and mathematical art.
+A project to create geometrical and mathematical art. 
+
+The drawing interface for SymArt is now live and can be accessed at the following URL: [SymArt Drawing Interface](https://pedrou2000.github.io/SymArt/drawing_interface.html).
+
+Feel free to try it out and explore the features!
 
 
-### To Implement
-
-Radial Symmetry: In addition to the circular symmetry, implement radial symmetry which emanates from a central point, similar to the way petals are arranged in a flower.
+<!-- ### To Implement
 
 Fractal Symmetry: Implement recursive patterns that produce fractals. Users could click to place the seed of a fractal, and the system could generate the fractal pattern from there.
 
@@ -31,3 +33,4 @@ Symmetry Transformation: Allow users to morph between different symmetry types, 
 Sound-Activated Symmetry: Use microphone input to alter the symmetry based on sound or music, creating visual patterns that respond to audio.
 
 Custom Symmetry Axes: Users can define their own axes of symmetry, placing and angling them as they wish on the canvas.
+-->
