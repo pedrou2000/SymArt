@@ -1,150 +1,74 @@
-const SYMMETRY_OPTIONS = {
-    TWO_WAY: 2,
-    FOUR_WAY: 4,
-    SIX_WAY: 6,
-    EIGHT_WAY: 8,
-    TEN_WAY: 10,
-    TWELVE_WAY: 12,
-};
-
 // Define the mode of drawing and the default values for symmetries and petals
 const Mode = {
     SYMMETRY: 'symmetry',
     RADIAL: 'radial'
 };
 
-let currentMode = Mode.SYMMETRY; // Default mode
-let symmetry = SYMMETRY_OPTIONS.FOUR_WAY; // Default symmetry
+// Starting defaults
+let currentMode = Mode.SYMMETRY;
+let symmetry = 4; // Default to four-way symmetry as a sensible default
 let petals = 10; // Default number of petals
 
-
-document.addEventListener('DOMContentLoaded', (event) => {
+// Set up the canvas and event listeners when the document is loaded
+document.addEventListener('DOMContentLoaded', () => {
     const symmetriesButton = document.getElementById('symmetriesButton');
     const radialButton = document.getElementById('radialButton');
-    const symmetryOptions = document.getElementById('symmetryOptions');
-    const radialOptions = document.getElementById('radialOptions');
     const petalSlider = document.getElementById('petalSlider');
     const symmetrySelector = document.getElementById('symmetrySelector');
-  
-    // Button to toggle symmetry mode and its options
-    symmetriesButton.addEventListener('click', function() {
-      currentMode = Mode.SYMMETRY;
-      symmetryOptions.classList.toggle('collapse');
-      radialOptions.classList.add('collapse');
-    });
-  
-    // Button to toggle radial mode and its options
-    radialButton.addEventListener('click', function() {
-      currentMode = Mode.RADIAL;
-      radialOptions.classList.toggle('collapse');
-      symmetryOptions.classList.add('collapse');
-    });
-  
-    // Event listener for the petal slider, only relevant in radial mode
-    petalSlider.addEventListener('input', function(event) {
-      if (currentMode === Mode.RADIAL) {
-        petals = event.target.value;
-      }
-    });
-  
-    // Event listener for the symmetry selector, only relevant in symmetry mode
-    symmetrySelector.addEventListener('change', function(event) {
-      if (currentMode === Mode.SYMMETRY) {
-        symmetry = event.target.value;
-      }
-    });
-  
-    // ...rest of the setup and drawing functions
-  });
 
+    symmetriesButton.addEventListener('click', () => toggleMode(Mode.SYMMETRY));
+    radialButton.addEventListener('click', () => toggleMode(Mode.RADIAL));
+    petalSlider.addEventListener('input', (e) => petals = e.target.value);
+    symmetrySelector.addEventListener('change', (e) => symmetry = e.target.value);
+});
 
+// Toggle between symmetry and radial modes
+function toggleMode(mode) {
+    currentMode = mode;
+    document.getElementById('symmetryOptions').classList.toggle('collapse', mode !== Mode.SYMMETRY);
+    document.getElementById('radialOptions').classList.toggle('collapse', mode !== Mode.RADIAL);
+}
+
+// p5.js functions for drawing
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    setupSymmetrySelector();
-    // Add event listener for the petal slider
-    const petalSlider = document.getElementById('petalSlider');
-    petalSlider.addEventListener('input', function(event) {
-        petals = event.target.value;
-    });
-
-    // Add event listener for the clear button
-    const clearButton = document.getElementById('clearButton');
-    clearButton.addEventListener('click', function() {
-        clearCanvas();
-    });
-}
-// Function to clear the canvas
-function clearCanvas() {
-    clear(); // Clears the pixels within a buffer
-    background(255); // Set to white background
+    background(255);
 }
 
-function setupSymmetrySelector() {
-    const selector = document.getElementById('symmetrySelector');
-    selector.addEventListener('change', function(event) {
-        setSymmetry(event.target.value);
-    });
+function draw() {
+    if (mouseIsPressed && mouseOverCanvas()) {
+        drawSymmetricalLines(mouseX, mouseY, pmouseX, pmouseY);
+    }
 }
 
-function setSymmetry(newSymmetry) {
-    symmetry = newSymmetry;
-}
-
-// Modify the drawSymmetricalLines function to check for currentMode
+// Simplified function to draw lines according to the current mode
 function drawSymmetricalLines(x, y, px, py) {
-    if (currentMode === Mode.RADIAL) {
-      drawRadialLines(x, y, px, py);
-    } else {
-      const angle = TWO_PI / symmetry;
-      for (let i = 0; i < symmetry; i++) {
-        drawLineAtAngle(x, y, px, py, angle * i);
-        drawLineAtAngle(x, y, px, py, angle * i, true);
-      }
-    }
-  }
+    const count = currentMode === Mode.SYMMETRY ? symmetry : petals;
+    const angle = TWO_PI / count;
 
-function drawRadialLines(x, y, px, py) {
-    const angle = TWO_PI / petals;
-    for (let i = 0; i < petals; i++) {
-        push();
-        translate(width / 2, height / 2);
-        rotate(angle * i);
-        let sx = 0; // Start at the center for radial symmetry
-        let sy = 0;
-        line(sx, sy, x, y);
-        pop();
+    for (let i = 0; i < count; i++) {
+        const currentAngle = angle * i;
+        drawLineAtAngle(x, y, px, py, currentAngle, currentMode === Mode.SYMMETRY);
     }
 }
 
+// Drawing a line at a given angle and optionally reflecting it
 function drawLineAtAngle(x, y, px, py, angle, reflect = false) {
     push();
     translate(width / 2, height / 2);
     rotate(angle);
     if (reflect) scale(1, -1);
-    line(x, y, px, py);
+    line(x - width / 2, y - height / 2, px - width / 2, py - height / 2);
     pop();
 }
 
-function draw() {
-    // Check if the mouse is pressed and over the canvas
-    if (mouseIsPressed && mouseOverCanvas()) {
-        const mx = mouseX - width / 2;
-        const my = mouseY - height / 2;
-        const pmx = pmouseX - width / 2;
-        const pmy = pmouseY - height / 2;
-        drawSymmetricalLines(mx, my, pmx, pmy);
-    }
-}
-
-// Updated helper function to check if the mouse is over the canvas area specifically
+// Check if the mouse is over the canvas area
 function mouseOverCanvas() {
-    const sidebarWidth = document.getElementById('sidebar').offsetWidth;
-    // Check if the mouse is within the bounds of the canvas, accounting for the sidebar
-    return mouseX > sidebarWidth && mouseX < windowWidth && mouseY > 0 && mouseY < windowHeight;
+    return mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height;
 }
 
+// Adjust canvas size when the window is resized
 function windowResized() {
-    const canvasWidth = windowWidth - document.getElementById('sidebar').offsetWidth;
-    const canvasHeight = windowHeight;
-    resizeCanvas(canvasWidth, canvasHeight);
+    resizeCanvas(windowWidth, windowHeight);
+    background(255);
 }
