@@ -22,11 +22,14 @@ body {
 }
 
 .canvas-container {
+    display: flex; /* Use flexbox layout */
+    justify-content: center; /* Center children horizontally */
+    align-items: center; /* Center children vertically */
     flex-grow: 1; /* Take up remaining space */
-    margin-left: 250px; /* Same as the width of the sidebar */
     position: relative; /* Position relative to the parent */
     overflow: hidden; /* Prevent scrolling inside the canvas container */
 }
+
 
 /* Adjust the canvas position to fill the container */
 canvas {

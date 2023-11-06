@@ -4,7 +4,7 @@ const Mode = {
 };
 
 let currentMode = Mode.SYMMETRY;
-let symmetry = 4;
+let symmetry = 16;
 let petals = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -45,12 +45,25 @@ function toggleMode(mode, showElement, hideElement) {
 }
 
 function setup() {
-    const canvas = createCanvas(windowWidth - document.getElementById('sidebar').offsetWidth, windowHeight);
+    const canvasContainer = document.getElementById('canvas-container');
+    const cw = canvasContainer.offsetWidth;
+    const ch = canvasContainer.offsetHeight;
+    
+    // Create a canvas that is smaller than the container dimensions
+    // For example, 90% of the width and height
+    const canvas = createCanvas(cw, ch);
     canvas.parent('canvas-container'); // This makes sure the canvas is placed inside the 'canvas-container' div
-    background(240); // Use a light gray background to make the canvas area clear visually
-    stroke(0); // Set line color to black for drawing
-    strokeWeight(1); // Set line weight
+
+    // Since the container uses flexbox, no need to set absolute position styles
+    // canvas.style('position', 'absolute'); // These lines can be removed
+    // canvas.style('left', '0px'); // These lines can be removed
+    // canvas.style('top', '0px'); // These lines can be removed
+
+    background(200); // Light grey background for the canvas
 }
+
+
+
 
 
 function clearCanvas() {
@@ -78,10 +91,25 @@ function draw() {
 
 function mouseOverCanvas() {
     const sidebarWidth = document.getElementById('sidebar').offsetWidth;
-    return mouseX > sidebarWidth && mouseX < windowWidth && mouseY > 0 && mouseY < windowHeight;
+    const canvasRect = document.getElementById('defaultCanvas0').getBoundingClientRect();
+    return mouseX > canvasRect.left && mouseX < canvasRect.right && mouseY > canvasRect.top && mouseY < canvasRect.bottom;
 }
 
+
+
+
 function windowResized() {
-    resizeCanvas(windowWidth - document.getElementById('sidebar').offsetWidth, windowHeight);
+    // No need to subtract the sidebar width anymore
+    resizeCanvas(windowWidth, windowHeight);
+
+    // Update canvas position
+    const canvas = document.getElementById('defaultCanvas0');
+    if (canvas) {
+        canvas.style('position', 'absolute');
+        canvas.style('left', '250px'); // Position the canvas right next to the sidebar
+        canvas.style('top', '0px');
+    }
 }
+
+
 
