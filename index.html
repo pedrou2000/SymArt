@@ -4,19 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Symmetrical Drawing App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 <body>
-    <select id="symmetrySelector">
-        <option value="2">2-way symmetry</option>
-        <option value="4" selected>4-way symmetry</option>
-        <option value="6">6-way symmetry</option>
-        <option value="8">8-way symmetry</option>
-        <option value="10">10-way symmetry</option>
-        <option value="12">12-way symmetry</option>
-    </select>
-    
+    <div id="controls" class="container mt-4">
+        <div class="row">
+            <div class="col">
+                <label for="symmetrySelector">Symmetry type:</label>
+                <select id="symmetrySelector" class="form-control">
+                    <option value="2">2-way symmetry</option>
+                    <option value="4" selected>4-way symmetry</option>
+                    <option value="6">6-way symmetry</option>
+                    <option value="8">8-way symmetry</option>
+                    <option value="10">10-way symmetry</option>
+                    <option value="12">12-way symmetry</option>
+                    <option value="radial">Radial symmetry</option>
+                </select>
+            </div>
+            <div class="col">
+                <label for="petalSlider">Number of petals:</label>
+                <input type="range" id="petalSlider" class="custom-range" min="2" max="20" value="10">
+            </div>
+            <div class="col">
+                <button id="clearButton" class="btn btn-danger mt-4">Clear</button>
+            </div>
+        </div>
+    </div>
+
     <script src="sketch.js"></script>
 </body>
 </html>

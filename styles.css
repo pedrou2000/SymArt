@@ -1,0 +1,23 @@
+#controls {
+    margin: 10px;
+}
+
+#symmetrySelector {
+    width: auto; /* Bootstrap's form-control class handles the width */
+    padding: 5px;
+    margin-right: 10px;
+}
+
+#petalSlider {
+    width: auto; /* Bootstrap's custom-range class handles the width */
+    margin: 5px 10px;
+}
+
+button {
+    padding: 5px 10px;
+}
+
+/* Adjust the canvas margin to not overlap with the controls */
+canvas {
+    margin-top: 60px; /* Adjust as necessary based on the size of your controls */
+}
