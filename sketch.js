@@ -78,6 +78,7 @@ function drawLineAtAngle(x, y, px, py, angle, reflect = false) {
 }
 
 function draw() {
+    // Check if the mouse is pressed and over the canvas
     if (mouseIsPressed && mouseOverCanvas()) {
         const mx = mouseX - width / 2;
         const my = mouseY - height / 2;
@@ -86,11 +87,16 @@ function draw() {
         drawSymmetricalLines(mx, my, pmx, pmy);
     }
 }
-// Helper function to check if the mouse is over the canvas
+
+// Updated helper function to check if the mouse is over the canvas area specifically
 function mouseOverCanvas() {
-    return mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height;
+    const sidebarWidth = document.getElementById('sidebar').offsetWidth;
+    // Check if the mouse is within the bounds of the canvas, accounting for the sidebar
+    return mouseX > sidebarWidth && mouseX < windowWidth && mouseY > 0 && mouseY < windowHeight;
 }
 
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
+    const canvasWidth = windowWidth - document.getElementById('sidebar').offsetWidth;
+    const canvasHeight = windowHeight;
+    resizeCanvas(canvasWidth, canvasHeight);
 }

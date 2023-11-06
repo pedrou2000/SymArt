@@ -1,3 +1,28 @@
+.sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 250px; /* Adjust the width as needed */
+    background-color: #f4f4f4; /* Light grey background */
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Add some shadow to the sidebar */
+    z-index: 10; /* Ensure the sidebar is above the canvas */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.canvas-container {
+    margin-left: 250px; /* Same as the width of the sidebar */
+}
+
+/* Style the select, range input and button */
+#symmetrySelector, #petalSlider, #clearButton {
+    margin-bottom: 20px; /* Add some space below the controls */
+}
+
+
 #controls {
     margin: 10px;
 }
