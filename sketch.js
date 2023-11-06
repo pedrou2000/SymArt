@@ -7,148 +7,155 @@ let currentMode = Mode.SYMMETRY;
 let symmetry = 64;
 let petals = 10;
 
-document.addEventListener('DOMContentLoaded', () => {
-    const symmetriesButton = document.getElementById('symmetriesButton');
-    const radialButton = document.getElementById('radialButton');
-    const symmetryOptions = document.getElementById('symmetryOptions');
-    const radialOptions = document.getElementById('radialOptions');
-    const petalInput = document.getElementById('petalInput'); // Updated to petalInput
-    const symmetryInput = document.getElementById('symmetryInput');
-    const clearButton = document.getElementById('clearButton');
+document.addEventListener('DOMContentLoaded', initialize);
 
-    symmetriesButton.addEventListener('click', () => toggleMode(Mode.SYMMETRY, symmetryOptions, radialOptions));
-    radialButton.addEventListener('click', () => toggleMode(Mode.RADIAL, radialOptions, symmetryOptions));
+function initialize() {
+    setupButtonListeners();
+    setupInputListeners();
+    setupSidebarToggle();
+}
 
-    petalInput.addEventListener('input', event => { // Updated to petalInput
-        if (currentMode === Mode.RADIAL) {
-            const value = parseInt(event.target.value, 10);
-            if (value >= 2) petals = value; // Ensure at least 2 petals
-        }
-    });
+function setupButtonListeners() {
+    document.getElementById('symmetriesButton').addEventListener('click', () => toggleMode(Mode.SYMMETRY));
+    document.getElementById('radialButton').addEventListener('click', () => toggleMode(Mode.RADIAL));
+    document.getElementById('clearButton').addEventListener('click', clearCanvas);
+    document.getElementById('bgColorButton').addEventListener('click', toggleColorPicker);
+    document.getElementById('pencilColorButton').addEventListener('click', togglePencilOptions);
+    document.getElementById('pencilWidthButton').addEventListener('click', togglePencilOptions);
+    document.getElementById('downloadButton').addEventListener('click', downloadCanvas);
+}
 
-    symmetryInput.addEventListener('input', event => {
-        if (currentMode === Mode.SYMMETRY) {
-            const value = parseInt(event.target.value, 10);
-            if (value >= 2) symmetry = value; // Ensure at least 2-way symmetry
-        }
-    });
+function setupInputListeners() {
+    document.getElementById('petalInput').addEventListener('input', handlePetalInput);
+    document.getElementById('symmetryInput').addEventListener('input', handleSymmetryInput);
+    document.getElementById('bgColorPicker').addEventListener('input', changeBackgroundColor);
+    document.getElementById('pencilColorPicker').addEventListener('input', changeStrokeColor);
+    document.getElementById('pencilWidthRange').addEventListener('input', changeStrokeWeight);
+}
 
-    clearButton.addEventListener('click', clearCanvas);
+function setupSidebarToggle() {
+    const toggleSidebarButton = document.getElementById('toggleSidebarButton');
+    toggleSidebarButton.addEventListener('click', toggleSidebar);
+}
 
-    const bgColorButton = document.getElementById('bgColorButton');
-    const bgColorOptions = document.getElementById('bgColorOptions');
-
-    // Toggle the color picker display when the button is clicked
-    bgColorButton.addEventListener('click', () => {
-        const isCollapsed = bgColorOptions.classList.contains('collapse');
-        if (isCollapsed) {
-            // Show the color picker
-            bgColorOptions.classList.remove('collapse');
-        } else {
-            // Hide the color picker
-            bgColorOptions.classList.add('collapse');
-        }
-    });
-
-    // Change the background color without collapsing the picker
-    const bgColorPicker = document.getElementById('bgColorPicker');
-    bgColorPicker.addEventListener('input', event => {
-        background(event.target.value);
-    });
-
-    // Pencil COlour
-    const pencilColorButton = document.getElementById('pencilColorButton');
-    const pencilColorOptions = document.getElementById('pencilColorOptions');
-    const pencilColorPicker = document.getElementById('pencilColorPicker');
-
-    pencilColorButton.addEventListener('click', () => {
-        pencilColorOptions.classList.toggle('collapse');
-    });
-
-    pencilColorPicker.addEventListener('input', event => {
-        stroke(event.target.value);
-    });
-
-    // Pencil Thickness 
-    const pencilWidthButton = document.getElementById('pencilWidthButton');
-    const pencilWidthOptions = document.getElementById('pencilWidthOptions');
-    const pencilWidthRange = document.getElementById('pencilWidthRange');
-
-    pencilWidthButton.addEventListener('click', () => {
-        pencilWidthOptions.classList.toggle('collapse');
-    });
-
-    pencilWidthRange.addEventListener('input', event => {
-        strokeWeight(event.target.value);
-
-    });
-});
-
-const toggleSidebarButton = document.getElementById('toggleSidebarButton');
-const sidebar = document.getElementById('sidebar');
-const canvasContainer = document.getElementById('canvas-container');
-
-toggleSidebarButton.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    const sidebarWidth = sidebar.classList.contains('collapsed') ? 0 : 0; // Adjust to your sidebar width
-    canvasContainer.style.marginLeft = `${sidebarWidth}px`; // Set margin-left based on the sidebar width
-    const canvas = document.getElementById('defaultCanvas0');
-    if (canvas) {
-        canvas.style.left = `${sidebarWidth}px`; // Adjust canvas position based on sidebar width
-    }
-});
-
-
-function toggleMode(mode, showElement, hideElement) {
+function toggleMode(mode) {
     currentMode = mode;
-    showElement.classList.toggle('collapse');
+    const showElement = document.getElementById(`${mode}Options`);
+    const hideElement = document.getElementById(`${mode === Mode.SYMMETRY ? Mode.RADIAL : Mode.SYMMETRY}Options`);
+    showElement.classList.remove('collapse');
     hideElement.classList.add('collapse');
 }
 
+function handlePetalInput(event) {
+    if (currentMode === Mode.RADIAL) {
+        petals = Math.max(parseInt(event.target.value, 10), 2); // Ensure at least 2 petals
+    }
+}
+
+function handleSymmetryInput(event) {
+    if (currentMode === Mode.SYMMETRY) {
+        symmetry = Math.max(parseInt(event.target.value, 10), 2); // Ensure at least 2-way symmetry
+    }
+}
+
+function toggleColorPicker() {
+    const bgColorOptions = document.getElementById('bgColorOptions');
+    bgColorOptions.classList.toggle('collapse');
+}
+
+function togglePencilOptions(event) {
+    const optionsId = event.currentTarget.id.replace('Button', 'Options');
+    const optionsElement = document.getElementById(optionsId);
+    optionsElement.classList.toggle('collapse');
+}
+
+function changeBackgroundColor(event) {
+    background(event.target.value);
+}
+
+function changeStrokeColor(event) {
+    stroke(event.target.value);
+}
+
+function changeStrokeWeight(event) {
+    strokeWeight(event.target.value);
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const canvasContainer = document.getElementById('canvas-container');
+    sidebar.classList.toggle('collapsed');
+    adjustCanvasLayout(sidebar, canvasContainer);
+}
+
+function adjustCanvasLayout(sidebar, canvasContainer) {
+    const sidebarWidth = sidebar.classList.contains('collapsed') ? 0 : sidebar.offsetWidth;
+    canvasContainer.style.marginLeft = `${sidebarWidth}px`;
+    const canvas = document.getElementById('defaultCanvas0');
+    if (canvas) {
+        canvas.style.left = `${sidebarWidth}px`;
+    }
+}
+// Canvas and drawing related functions
 function setup() {
+    createCanvasInContainer();
+    setInitialCanvasState();
+}
+
+function createCanvasInContainer() {
     const canvasContainer = document.getElementById('canvas-container');
     const cw = canvasContainer.offsetWidth;
     const ch = canvasContainer.offsetHeight;
-    // Create a canvas that is smaller than the container dimensions
     const canvas = createCanvas(cw, ch);
-    canvas.parent('canvas-container'); // This makes sure the canvas is placed inside the 'canvas-container' div
+    canvas.parent('canvas-container');
 }
 
-
-
-
+function setInitialCanvasState() {
+    clearCanvas();
+}
 
 function clearCanvas() {
     clear();
     background(255);
 }
 
+function draw() {
+    if (shouldDraw()) {
+        const x = mouseX - width / 2;
+        const y = mouseY - height / 2;
+        const px = pmouseX - width / 2;
+        const py = pmouseY - height / 2;
+        drawSymmetricalLines(x, y, px, py);
+    }
+}
+
+function shouldDraw() {
+    return mouseIsPressed && mouseOverCanvas() && !mouseIsOverSidebar() && !mouseIsOverGearIcon();
+}
+
 function drawSymmetricalLines(x, y, px, py) {
     const angle = TWO_PI / (currentMode === Mode.RADIAL ? petals : symmetry);
     for (let i = 0; i < (currentMode === Mode.RADIAL ? petals : symmetry); i++) {
-        push();
-        translate(width / 2, height / 2);
-        rotate(angle * i);
-        if (currentMode === Mode.SYMMETRY && i % 2 === 1) scale(1, -1);
-        line(currentMode === Mode.RADIAL ? 0 : x, currentMode === Mode.RADIAL ? 0 : y, px, py);
-        pop();
+        drawLineInSymmetry(x, y, px, py, angle, i);
     }
 }
 
-function draw() {
-    if (mouseIsPressed && mouseOverCanvas() && !mouseIsOverSidebar() && !mouseIsOverGearIcon()) {
-        drawSymmetricalLines(mouseX - width / 2, mouseY - height / 2, pmouseX - width / 2, pmouseY - height / 2);
-    }
+function drawLineInSymmetry(x, y, px, py, angle, index) {
+    push();
+    translate(width / 2, height / 2);
+    rotate(angle * index);
+    if (currentMode === Mode.SYMMETRY && index % 2 === 1) scale(1, -1);
+    line(currentMode === Mode.RADIAL ? 0 : x, currentMode === Mode.RADIAL ? 0 : y, px, py);
+    pop();
 }
 
-
-// Helper function to determine if the mouse is over the sidebar
+// Helper functions for UI interactions
 function mouseIsOverSidebar() {
+    const sidebar = document.getElementById('sidebar');
     return sidebar.classList.contains('collapsed') ? false : mouseX <= sidebar.offsetWidth;
 }
 
 function mouseOverCanvas() {
-    const sidebarWidth = document.getElementById('sidebar').offsetWidth;
     const canvasRect = document.getElementById('defaultCanvas0').getBoundingClientRect();
     return mouseX > canvasRect.left && mouseX < canvasRect.right && mouseY > canvasRect.top && mouseY < canvasRect.bottom;
 }
@@ -159,30 +166,15 @@ function mouseIsOverGearIcon() {
            mouseY >= gearIconRect.top && mouseY <= gearIconRect.bottom;
 }
 
-
-
+// Window resize handling
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
 
-
-
-
-// Download Function in JavaScript
+// Function for downloading the canvas
 function downloadCanvas() {
-    // This will prompt the user to save the canvas as 'myCanvas.png'
     saveCanvas('myCanvas', 'png');
 }
 
-// Binding the function to the button
-document.addEventListener('DOMContentLoaded', () => {
-    const downloadButton = document.getElementById('downloadButton');
-    downloadButton.addEventListener('click', downloadCanvas);
-});
-
-
-function changeBackgroundColor(event) {
-    const newColor = event.target.value;
-    background(newColor);
-}
-
+// Call setup function on window load
+window.onload = setup;
