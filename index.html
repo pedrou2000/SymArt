@@ -15,15 +15,8 @@
                 <div class="col">
                     <button id="symmetriesButton" class="btn btn-primary mt-4">Symmetries</button>
                     <div id="symmetryOptions" class="collapse">
-                        <label for="symmetrySelector" class="mt-2">Symmetry type:</label>
-                        <select id="symmetrySelector" class="form-control">
-                            <option value="2">2-way symmetry</option>
-                            <option value="4" selected>4-way symmetry</option>
-                            <option value="6">6-way symmetry</option>
-                            <option value="8">8-way symmetry</option>
-                            <option value="10">10-way symmetry</option>
-                            <option value="12">12-way symmetry</option>
-                        </select>
+                        <label for="symmetryInput" class="mt-2">Symmetry type:</label>
+                        <input id="symmetryInput" type="number" class="form-control" min="2" value="4" />
                     </div>
                 </div>
                 <div class="col">
