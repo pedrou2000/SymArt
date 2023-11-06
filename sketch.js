@@ -55,6 +55,33 @@ document.addEventListener('DOMContentLoaded', () => {
     bgColorPicker.addEventListener('input', event => {
         background(event.target.value);
     });
+
+    // Pencil COlour
+    const pencilColorButton = document.getElementById('pencilColorButton');
+    const pencilColorOptions = document.getElementById('pencilColorOptions');
+    const pencilColorPicker = document.getElementById('pencilColorPicker');
+
+    pencilColorButton.addEventListener('click', () => {
+        pencilColorOptions.classList.toggle('collapse');
+    });
+
+    pencilColorPicker.addEventListener('input', event => {
+        stroke(event.target.value);
+    });
+
+    // Pencil Thickness 
+    const pencilWidthButton = document.getElementById('pencilWidthButton');
+    const pencilWidthOptions = document.getElementById('pencilWidthOptions');
+    const pencilWidthRange = document.getElementById('pencilWidthRange');
+
+    pencilWidthButton.addEventListener('click', () => {
+        pencilWidthOptions.classList.toggle('collapse');
+    });
+
+    pencilWidthRange.addEventListener('input', event => {
+        strokeWeight(event.target.value);
+
+    });
 });
 
 const toggleSidebarButton = document.getElementById('toggleSidebarButton');
