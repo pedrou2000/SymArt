@@ -99,11 +99,11 @@ function drawSymmetricalLines(x, y, px, py) {
 }
 
 function draw() {
-    // Only allow drawing if the sidebar is collapsed or if the mouse is not over the sidebar
-    if (mouseIsPressed && mouseOverCanvas() && !mouseIsOverSidebar()) {
+    if (mouseIsPressed && mouseOverCanvas() && !mouseIsOverSidebar() && !mouseIsOverGearIcon()) {
         drawSymmetricalLines(mouseX - width / 2, mouseY - height / 2, pmouseX - width / 2, pmouseY - height / 2);
     }
 }
+
 
 // Helper function to determine if the mouse is over the sidebar
 function mouseIsOverSidebar() {
@@ -116,6 +116,11 @@ function mouseOverCanvas() {
     return mouseX > canvasRect.left && mouseX < canvasRect.right && mouseY > canvasRect.top && mouseY < canvasRect.bottom;
 }
 
+function mouseIsOverGearIcon() {
+    const gearIconRect = document.getElementById('gearIcon').getBoundingClientRect();
+    return mouseX >= gearIconRect.left && mouseX <= gearIconRect.right &&
+           mouseY >= gearIconRect.top && mouseY <= gearIconRect.bottom;
+}
 
 
 

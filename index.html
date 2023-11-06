@@ -5,35 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Symmetrical Drawing App</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 <body>
 
 
-    <button id="toggleSidebarButton" class="btn btn-secondary">Toggle Sidebar</button>
+    <button id="toggleSidebarButton" class="btn">
+        <i id="gearIcon" class="fas fa-cog"></i> <!-- Add an id here -->
+    </button>
+    
+    
+    
     <div id="sidebar" class="sidebar">
 
         <div id="controls" class="container mt-4">
             <div class="row mb-2">
                 <div class="col">
-                    <button id="symmetriesButton" class="btn btn-primary">Symmetries</button>
+                    <!-- Updated button text for clarity -->
+                    <button id="symmetriesButton" class="btn btn-primary">Reflective Symmetry</button>
                 </div>
             </div>
             <div id="symmetryOptions" class="row collapse mb-2">
                 <div class="col">
-                    <label for="symmetryInput">Number of Symmetries:</label>
+                    <!-- Updated label text for clarity -->
+                    <label for="symmetryInput">Number of Axes of Symmetry:</label>
                     <input id="symmetryInput" type="number" class="form-control" min="2" value="" />
                 </div>
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <button id="radialButton" class="btn btn-primary">Radial</button>
+                    <!-- Updated button text for clarity -->
+                    <button id="radialButton" class="btn btn-primary">Radial Symmetry</button>
                 </div>
             </div>
             <div id="radialOptions" class="row collapse mb-2">
                 <div class="col">
-                    <label for="petalInput">Number of Petals:</label>
+                    <!-- Updated label text for mathematical accuracy -->
+                    <label for="petalInput">Number of Radial Divisions:</label>
                     <input id="petalInput" type="number" class="form-control" min="2" value="" />
                 </div>
             </div>
@@ -44,6 +54,7 @@
             </div>
         </div>
     </div>
+    
 
     <div id="canvas-container" class="canvas-container">
         <!-- Canvas will be inserted here by p5.js -->
