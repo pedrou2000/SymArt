@@ -110,7 +110,7 @@ function createCanvasInContainer() {
     const canvasContainer = document.getElementById('canvas-container');
     const cw = canvasContainer.offsetWidth;
     const ch = canvasContainer.offsetHeight;
-    const canvas = createCanvas(cw, ch);
+    const canvas = createCanvas(cw, ch, SVG);
     canvas.parent('canvas-container');
 }
 
@@ -177,7 +177,9 @@ function windowResized() {
 
 // Function for downloading the canvas
 function downloadCanvas() {
-    saveCanvas('myCanvas', 'png');
+    // saveCanvas('myCanvas', 'png');
+    save('myCanvas.svg');
+
 }
 
 // Call setup function on window load
