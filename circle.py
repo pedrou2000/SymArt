@@ -61,7 +61,6 @@ def save_cropped_svg(svg_content, center, radius, output_file_path):
 
     return modified_svg_content
 
-# Now use the returned modified SVG content to save as PNG:
 def save_svg_as_png(svg_content, output_file_path, scale=1):
     root = ET.fromstring(svg_content)
     # Parse width and height as floats, then scale and convert to integers
@@ -83,13 +82,8 @@ png_output_file_path = data_path + 'circle.png'
 scale_factor = 10  # For example, to double the resolution
 
 # Call the function with the scale factor
-
 points, original_svg_content = parse_svg_file(svg_file_path)
 center, radius = calculate_enclosing_circle(points)
 clipped_svg_content = apply_circle_clip_to_svg(original_svg_content, center, radius)
 modified_svg_content = save_cropped_svg(clipped_svg_content, center, radius, svg_cropped_file_path)
 save_svg_as_png(modified_svg_content, png_output_file_path, scale=scale_factor)
-
-
-
-print("The part of the figure contained in the smallest enclosing circle has been saved as PNG.")
