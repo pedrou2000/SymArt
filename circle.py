@@ -33,33 +33,32 @@ def create_circle_svg(center, radius, width, height):
     svg_content += f'<circle cx="{center[0]}" cy="{center[1]}" r="{radius}" fill="none" stroke="black"/></svg>'
     return svg_content
 
+from PIL import Image, ImageDraw
+
 def svg_to_png(svg_content, output_file, scale_factor=1, center=None, radius=None):
-    # If center and radius are provided, we adjust the viewbox and size to crop to the circle
-    if center is not None and radius is not None:
-        adjusted_radius = radius * scale_factor
-        new_width = new_height = adjusted_radius * 2
-        viewbox_x = center[0] - radius
-        viewbox_y = center[1] - radius
-        viewbox_width = viewbox_height = new_width
-
-        # Adjust the svg content viewbox and size to center on the circle
-        svg_tree = ET.fromstring(svg_content.encode('utf-8'))
-        svg_tree.set('viewBox', f"{viewbox_x} {viewbox_y} {viewbox_width} {viewbox_height}")
-        svg_tree.set('width', str(new_width))
-        svg_tree.set('height', str(new_height))
-        svg_content = ET.tostring(svg_tree, encoding='unicode')
-    else:
-        # Parse the original SVG content to get the width and height
-        svg_tree = ET.fromstring(svg_content.encode('utf-8'))
-        original_width = int(svg_tree.get('width', 1920))
-        original_height = int(svg_tree.get('height', 880))
-
-        # Calculate the new width and height based on the scaling factor
-        new_width = original_width * scale_factor
-        new_height = original_height * scale_factor
-
     # Convert the SVG content to a PNG file with the new dimensions
-    cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), write_to=output_file, output_width=new_width, output_height=new_height)
+    cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), write_to=output_file)
+
+    if center is not None and radius is not None:
+        # Open the PNG file with PIL
+        img = Image.open(output_file)
+        # Create a mask to crop the circle
+        mask = Image.new('L', img.size, 0)
+        draw = ImageDraw.Draw(mask) 
+        # Draw a white, filled circle on the mask image
+        draw.ellipse((center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius), fill=255)
+        
+        # Create a new image with the same size as the original and a transparent background
+        result = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        # Paste the original image onto the transparent background using the mask
+        result.paste(img, mask=mask)
+        
+        # Crop the image to the bounding box of the circle to create a square shape
+        bbox = mask.getbbox()
+        cropped_result = result.crop(bbox)
+        
+        # Save the final cropped image
+        cropped_result.save(output_file)
 
 from PIL import Image
 
@@ -86,5 +85,5 @@ scale_factor = 10  # For example, to double the resolution
 points, original_svg_content = parse_svg_file(svg_file_path)
 center, radius = calculate_enclosing_circle(points)
 clipped_svg_content = apply_circle_clip_to_svg(original_svg_content, center, radius)
-svg_to_png(clipped_svg_content, png_temp_file_path, scale_factor)
+svg_to_png(clipped_svg_content, png_temp_file_path, scale_factor, center, radius)
 print("The part of the figure contained in the smallest enclosing circle has been saved as PNG.")
