@@ -11,7 +11,7 @@ def parse_svg_file(svg_file_path):
     points = parse_svg_path_data(svg_content)
     return points, svg_content
 
-def parse_svg_path_data(svg_content):
+def parse_svg_path_data(svg_content):   
     points = []
     path_regex = re.compile(r'd="([^"]*)"')
     move_to_line_to_regex = re.compile(r'M (\d+(?:\.\d+)?) (\d+(?:\.\d+)?) L \1 \2')
@@ -76,7 +76,7 @@ def save_svg_as_png(svg_content, output_file_path, scale=1):
 
 # Main process
 data_path = 'images/'
-svg_file_path = data_path + 'myCanvas.svg'  # Replace with your SVG file path
+svg_file_path = data_path + 'myCanvas (2).svg'  # Replace with your SVG file path
 svg_cropped_file_path = data_path + 'circle.svg'  # Replace with your SVG file path
 png_output_file_path = data_path + 'circle.png'
 scale_factor = 10  # For example, to double the resolution
