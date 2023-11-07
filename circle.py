@@ -28,11 +28,6 @@ def calculate_enclosing_circle(points):
     radius = np.sqrt(squared_radius)
     return center, radius
 
-def create_circle_svg(center, radius, width, height):
-    svg_content = f'<svg width="{width}px" height="{height}px" viewBox="0 0 {width} {height}" xmlns="http://www.w3.org/2000/svg">'
-    svg_content += f'<circle cx="{center[0]}" cy="{center[1]}" r="{radius}" fill="none" stroke="black"/></svg>'
-    return svg_content
-
 def apply_circle_clip_to_svg(original_svg_content, center, radius):
     # Add a clipping path to the SVG content
     clip_path_svg = f'<clipPath id="clipCircle"><circle cx="{center[0]}" cy="{center[1]}" r="{radius}" /></clipPath>'
@@ -42,6 +37,7 @@ def apply_circle_clip_to_svg(original_svg_content, center, radius):
     # Apply the clipping path to all elements by modifying the <g> tags
     clipped_svg_content = re.sub(r'(<g)', r'\1 clip-path="url(#clipCircle)"', clipped_svg_content)
     return clipped_svg_content
+
 def save_cropped_svg(svg_content, center, radius, output_file_path):
     # Calculate the bounding box of the circle
     x_min = center[0] - radius
