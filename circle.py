@@ -33,35 +33,6 @@ def create_circle_svg(center, radius, width, height):
     svg_content += f'<circle cx="{center[0]}" cy="{center[1]}" r="{radius}" fill="none" stroke="black"/></svg>'
     return svg_content
 
-from PIL import Image, ImageDraw
-
-def svg_to_png(svg_content, output_file, scale_factor=1, center=None, radius=None):
-    # Convert the SVG content to a PNG file with the new dimensions
-    cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), write_to=output_file)
-
-    if center is not None and radius is not None:
-        # Open the PNG file with PIL
-        img = Image.open(output_file)
-        # Create a mask to crop the circle
-        mask = Image.new('L', img.size, 0)
-        draw = ImageDraw.Draw(mask) 
-        # Draw a white, filled circle on the mask image
-        draw.ellipse((center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius), fill=255)
-        
-        # Create a new image with the same size as the original and a transparent background
-        result = Image.new('RGBA', img.size, (0, 0, 0, 0))
-        # Paste the original image onto the transparent background using the mask
-        result.paste(img, mask=mask)
-        
-        # Crop the image to the bounding box of the circle to create a square shape
-        bbox = mask.getbbox()
-        cropped_result = result.crop(bbox)
-        
-        # Save the final cropped image
-        cropped_result.save(output_file)
-
-from PIL import Image
-
 def apply_circle_clip_to_svg(original_svg_content, center, radius):
     # Add a clipping path to the SVG content
     clip_path_svg = f'<clipPath id="clipCircle"><circle cx="{center[0]}" cy="{center[1]}" r="{radius}" /></clipPath>'
@@ -71,13 +42,48 @@ def apply_circle_clip_to_svg(original_svg_content, center, radius):
     # Apply the clipping path to all elements by modifying the <g> tags
     clipped_svg_content = re.sub(r'(<g)', r'\1 clip-path="url(#clipCircle)"', clipped_svg_content)
     return clipped_svg_content
+def save_cropped_svg(svg_content, center, radius, output_file_path):
+    # Calculate the bounding box of the circle
+    x_min = center[0] - radius
+    y_min = center[1] - radius
+    width_height = radius * 2
+
+    # Parse the SVG content
+    root = ET.fromstring(svg_content)
+
+    # Update the attributes of the root element for viewBox and size
+    root.attrib['viewBox'] = f"{x_min} {y_min} {width_height} {width_height}"
+    root.attrib['width'] = str(width_height)
+    root.attrib['height'] = str(width_height)
+
+    # Write to a new SVG file
+    tree = ET.ElementTree(root)
+    tree.write(output_file_path, encoding='utf-8', xml_declaration=True)
+
+    # Get the modified SVG content as a string
+    modified_svg_content = ET.tostring(root, encoding='utf-8', method='xml').decode('utf-8')
+
+    return modified_svg_content
+
+# Now use the returned modified SVG content to save as PNG:
+def save_svg_as_png(svg_content, output_file_path, scale=1):
+    root = ET.fromstring(svg_content)
+    # Parse width and height as floats, then scale and convert to integers
+    width = int(float(root.attrib['width']) * scale)
+    height = int(float(root.attrib['height']) * scale)
+    png_data = cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), output_width=width, output_height=height)
+    with open(output_file_path, 'wb') as png_file:
+        png_file.write(png_data)
+    print(f"Saved PNG file with scale {scale} at {output_file_path}")
+
+
+
 
 # Main process
 data_path = 'images/'
 svg_file_path = data_path + 'myCanvas.svg'  # Replace with your SVG file path
-png_temp_file_path = data_path + 'circle.png'  # Temporary file path for the PNG
-jpg_output_file_path = data_path + 'enclosing_circle.jpg'  # Final JPG output file path
-# Define your scale factor
+svg_cropped_file_path = data_path + 'circle.svg'  # Replace with your SVG file path
+png_output_file_path = data_path + 'circle.png'
 scale_factor = 10  # For example, to double the resolution
 
 # Call the function with the scale factor
@@ -85,5 +91,9 @@ scale_factor = 10  # For example, to double the resolution
 points, original_svg_content = parse_svg_file(svg_file_path)
 center, radius = calculate_enclosing_circle(points)
 clipped_svg_content = apply_circle_clip_to_svg(original_svg_content, center, radius)
-svg_to_png(clipped_svg_content, png_temp_file_path, scale_factor, center, radius)
+modified_svg_content = save_cropped_svg(clipped_svg_content, center, radius, svg_cropped_file_path)
+save_svg_as_png(modified_svg_content, png_output_file_path, scale=scale_factor)
+
+
+
 print("The part of the figure contained in the smallest enclosing circle has been saved as PNG.")
