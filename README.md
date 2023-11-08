@@ -1,7 +1,7 @@
 # SymArt 
 ![animated](https://github.com/pedrou2000/SymArt/assets/46072805/c2151dbc-ef73-4afc-ab42-4ed55eef97ae)
 
-A project to create geometrical and mathematical art. 
+A project to create geometrical art. 
 
 The drawing interface for SymArt is now live at [SymArt Drawing Interface](https://pedrou2000.github.io/SymArt/index.html).
 
