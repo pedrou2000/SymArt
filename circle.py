@@ -72,18 +72,40 @@ def save_svg_as_png(svg_content, output_file_path, scale=1):
     print(f"Saved PNG file with scale {scale} at {output_file_path}")
 
 
-
+def is_collinear(points):
+    # This function assumes points is an Nx2 numpy array
+    if len(points) <= 2:
+        # Two or fewer points are always collinear
+        return True
+    # Calculate the area of the triangle formed by every three points
+    # If any of these areas is non-zero, the points are not collinear
+    for i in range(len(points) - 2):
+        p1, p2, p3 = points[i], points[i + 1], points[i + 2]
+        # Using the determinant of the matrix of vectors for area calculation
+        area = np.linalg.det(np.array([[p1[0], p1[1], 1],
+                                       [p2[0], p2[1], 1],
+                                       [p3[0], p3[1], 1]])) / 2.0
+        if not np.isclose(area, 0):
+            return False
+    return True
 
 # Main process
 data_path = 'images/'
-svg_file_path = data_path + 'myCanvas (6).svg'  # Replace with your SVG file path
-svg_cropped_file_path = data_path + 'circle.svg'  # Replace with your SVG file path
-png_output_file_path = data_path + 'circle.png'
+names = ['myCanvas', 'myCanvas (1)', 'myCanvas (2)', 'myCanvas (3)', 'myCanvas (4)', 'myCanvas (5)', 'myCanvas (6)']
 scale_factor = 10  # For example, to double the resolution
 
 # Call the function with the scale factor
-points, original_svg_content = parse_svg_file(svg_file_path)
-center, radius = calculate_enclosing_circle(points)
-clipped_svg_content = apply_circle_clip_to_svg(original_svg_content, center, radius)
-modified_svg_content = save_cropped_svg(clipped_svg_content, center, radius, svg_cropped_file_path)
-save_svg_as_png(modified_svg_content, png_output_file_path, scale=scale_factor)
+for name in names:
+    svg_file_path = data_path + name + '.svg'  
+    svg_cropped_file_path = data_path + name + '_circle.svg'   # Replace with your SVG file path
+    png_output_file_path = data_path  + name + '_circle.png' 
+    points, original_svg_content = parse_svg_file(svg_file_path)
+     # Check if points are collinear
+    if is_collinear(points):
+        print(f"The points in {name} are collinear. A bounding circle cannot be calculated.")
+        continue  # Skip the current iteration
+    center, radius = calculate_enclosing_circle(points)
+    clipped_svg_content = apply_circle_clip_to_svg(original_svg_content, center, radius)
+    modified_svg_content = save_cropped_svg(clipped_svg_content, center, radius, svg_cropped_file_path)
+    save_svg_as_png(modified_svg_content, png_output_file_path, scale=scale_factor)
+    print('Finished ' + name + '.')
