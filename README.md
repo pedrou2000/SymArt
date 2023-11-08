@@ -3,7 +3,7 @@
 
 A project to create geometrical and mathematical art. 
 
-The drawing interface for SymArt is now live at [SymArt Drawing Interface](https://pedrou2000.github.io/SymArt/drawing_interface.html).
+The drawing interface for SymArt is now live at [SymArt Drawing Interface](https://pedrou2000.github.io/SymArt/index.html).
 
 Feel free to try it out and explore the features!
 
