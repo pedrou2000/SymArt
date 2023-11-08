@@ -109,3 +109,6 @@ for name in names:
     modified_svg_content = save_cropped_svg(clipped_svg_content, center, radius, svg_cropped_file_path)
     save_svg_as_png(modified_svg_content, png_output_file_path, scale=scale_factor)
     print('Finished ' + name + '.')
+
+# Gif Creation Command 
+# convert -delay 100 -loop 0 -background white -gravity center -extent 4000x4000 /home/pedro/Documents/GitHub/SymArt/images/myCanvas*.png /home/pedro/Documents/GitHub/SymArt/animated.gif
