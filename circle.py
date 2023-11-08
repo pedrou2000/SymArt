@@ -76,7 +76,7 @@ def save_svg_as_png(svg_content, output_file_path, scale=1):
 
 # Main process
 data_path = 'images/'
-svg_file_path = data_path + 'myCanvas.svg'  # Replace with your SVG file path
+svg_file_path = data_path + 'myCanvas (6).svg'  # Replace with your SVG file path
 svg_cropped_file_path = data_path + 'circle.svg'  # Replace with your SVG file path
 png_output_file_path = data_path + 'circle.png'
 scale_factor = 10  # For example, to double the resolution
