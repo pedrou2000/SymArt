@@ -1,6 +1,4 @@
 # SymArt 
-![myCanvas](https://github.com/pedrou2000/SymArt/assets/46072805/c5f73aff-4606-4d90-8152-3d9f6a391479)
-
 ![animated](https://github.com/pedrou2000/SymArt/assets/46072805/c2151dbc-ef73-4afc-ab42-4ed55eef97ae)
 
 A project to create geometrical and mathematical art. 
