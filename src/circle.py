@@ -90,7 +90,7 @@ def is_collinear(points):
     return True
 
 # Main process
-data_path = 'images/'
+data_path = '../images/'
 names = ['myCanvas', 'myCanvas (1)', 'myCanvas (3)', 'myCanvas (4)', 'myCanvas (5)', 'myCanvas (6)']
 scale_factor = 4  # For example, to double the resolution
 
