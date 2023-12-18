@@ -40,19 +40,34 @@ class CanvasManager:
         self.color = 'black'
         self.old_x = None
         self.old_y = None
+        self.drawing_mode = 'freehand'  # Default mode
+
+    def set_drawing_mode(self, mode):
+        self.drawing_mode = mode
 
     def set_symmetry(self, symmetry):
         self.symmetry_manager.set_symmetry(symmetry)
 
     def paint(self, x, y):
-        if self.old_x is not None and self.old_y is not None:
-            points = self.symmetry_manager.calculate_rotated_points(x, y, self.old_x, self.old_y)
-            for point in points:
-                self.canvas.create_line(point, width=self.line_width, fill=self.color,
-                                        capstyle=tk.ROUND, smooth=tk.TRUE, splinesteps=36)
-                self.current_stroke.append(point)
+        if self.drawing_mode == 'straight_line':
+            if self.old_x is None and self.old_y is None:
+                self.old_x, self.old_y = x, y
+        elif self.drawing_mode == 'freehand':
+            if self.old_x is not None and self.old_y is not None:
+                points = self.symmetry_manager.calculate_rotated_points(x, y, self.old_x, self.old_y)
+                for point in points:
+                    self.canvas.create_line(point, width=self.line_width, fill=self.color,
+                                            capstyle=tk.ROUND, smooth=tk.TRUE, splinesteps=36)
+                    self.current_stroke.append(point)
 
-        self.old_x, self.old_y = x, y
+            self.old_x, self.old_y = x, y
+    
+    def draw_line(self, start_x, start_y, end_x, end_y):
+        points = self.symmetry_manager.calculate_rotated_points(end_x, end_y, start_x, start_y)
+        for point in points:
+            self.canvas.create_line(point, width=self.line_width, fill=self.color,
+                                    capstyle=tk.ROUND, smooth=tk.TRUE, splinesteps=36)
+            self.current_stroke.append(point)
 
     def record_stroke(self):
         if self.current_stroke:
@@ -81,6 +96,13 @@ class CanvasManager:
 
     def set_color(self, new_color):
         self.color = new_color
+
+    def on_release(self, event):
+        if self.drawing_mode == 'straight_line':
+            self.draw_line(self.old_x, self.old_y, event.x, event.y)
+            self.record_stroke()
+        elif self.drawing_mode == 'freehand':
+            self.record_stroke()
 
 class DrawingApp:
     def __init__(self, root, width=800, height=600):
@@ -113,6 +135,9 @@ class DrawingApp:
         tk.Button(control_frame, text='Undo', command=self.canvas_manager.undo).pack(side=tk.TOP, pady=5)
         tk.Button(control_frame, text='Zoom In', command=lambda: self.zoom(1.1)).pack(side=tk.TOP, pady=5)
         tk.Button(control_frame, text='Zoom Out', command=lambda: self.zoom(0.9)).pack(side=tk.TOP, pady=5)
+        tk.Button(control_frame, text='Straight Line Mode', command=lambda: self.canvas_manager.set_drawing_mode('straight_line')).pack(side=tk.TOP, pady=5)
+        tk.Button(control_frame, text='Freehand Mode', command=lambda: self.canvas_manager.set_drawing_mode('freehand')).pack(side=tk.TOP, pady=5)
+
 
         self.line_width_slider = tk.Scale(control_frame, from_=1, to=20, orient=tk.HORIZONTAL, label="Line Width", length=300)
         self.line_width_slider.set(1)
@@ -137,7 +162,6 @@ class DrawingApp:
         self.canvas.scale("all", self.canvas_width / 2, self.canvas_height / 2, factor, factor)
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-
     def set_symmetry(self):
         symmetry = simpledialog.askinteger("Symmetry", "Enter number of axes:", minvalue=1)
         if symmetry is not None:
@@ -147,7 +171,8 @@ class DrawingApp:
         self.canvas_manager.paint(event.x, event.y)
 
     def on_release(self, event):
-        self.canvas_manager.record_stroke()
+        self.canvas_manager.on_release(event)
+
 
 if __name__ == '__main__':
     root = tk.Tk()
