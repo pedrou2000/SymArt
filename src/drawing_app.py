@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import simpledialog
+from tkinter import simpledialog, colorchooser  # Import colorchooser here
 from PIL import Image, ImageDraw
 import math
 
@@ -77,53 +77,78 @@ class CanvasManager:
     def zoom(self, factor):
         self.canvas.scale("all", self.width / 2, self.height / 2, factor, factor)
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-
+    
+    def set_color(self, new_color):
+        self.color = new_color
 
 class DrawingApp:
     def __init__(self, root, width=800, height=600):
         self.root = root
         self.canvas_width = width
         self.canvas_height = height
-        self.canvas = tk.Canvas(root, bg='white', width=self.canvas_width, height=self.canvas_height)
-        self.canvas.pack(padx=10, pady=10)
-        self.canvas_manager = CanvasManager(self.canvas, self.canvas_width, self.canvas_height)
-       
-        self.setup()
-        self.add_controls()
-        self.bind_mouse_wheel()
 
+        # Main frame to contain canvas and control panel
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(side=tk.LEFT, padx=10, pady=10)
+
+        # Frame for control panel
+        control_frame = tk.Frame(main_frame)
+        control_frame.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Canvas setup
+        self.canvas = tk.Canvas(main_frame, bg='white', width=self.canvas_width, height=self.canvas_height)
+        self.canvas.pack(side=tk.RIGHT, padx=10, pady=10)
+        self.canvas_manager = CanvasManager(self.canvas, self.canvas_width, self.canvas_height)
+
+        # Adding controls to the control panel
+        self.add_controls(control_frame)
+
+        self.setup()
+        self.bind_mouse_wheel()
 
     def setup(self):
         self.canvas.bind('<B1-Motion>', self.on_paint)
         self.canvas.bind('<ButtonRelease-1>', self.on_release)
 
-    def add_controls(self):
-        control_frame = tk.Frame(self.root)
-        control_frame.pack(side=tk.TOP, pady=5)
-
+    def add_controls(self, control_frame):
+        # Button for setting symmetry
         symmetry_button = tk.Button(control_frame, text='Set Symmetry', command=self.set_symmetry)
-        symmetry_button.pack(side=tk.LEFT, padx=5)
+        symmetry_button.pack(side=tk.TOP, pady=5)
 
+        # Button for undo action
         undo_button = tk.Button(control_frame, text='Undo', command=self.canvas_manager.undo)
-        undo_button.pack(side=tk.LEFT, padx=5)
+        undo_button.pack(side=tk.TOP, pady=5)
 
+        # Button to zoom in
         zoom_in_button = tk.Button(control_frame, text='Zoom In', command=lambda: self.canvas_manager.zoom(1.1))
-        zoom_in_button.pack(side=tk.LEFT, padx=5)
+        zoom_in_button.pack(side=tk.TOP, pady=5)
 
+        # Button to zoom out
         zoom_out_button = tk.Button(control_frame, text='Zoom Out', command=lambda: self.canvas_manager.zoom(0.9))
-        zoom_out_button.pack(side=tk.LEFT, padx=5)
+        zoom_out_button.pack(side=tk.TOP, pady=5)
 
-        # Slider for adjusting line width (made wider for easier sliding)
-        self.line_width_slider = tk.Scale(self.root, from_=1, to=20, orient=tk.HORIZONTAL, label="Line Width", length=300)
+        # Slider for adjusting line width
+        self.line_width_slider = tk.Scale(control_frame, from_=1, to=20, orient=tk.HORIZONTAL, label="Line Width", length=300)
         self.line_width_slider.set(1)  # Default line width
         self.line_width_slider.pack(side=tk.TOP, pady=5)
 
+        # Button for choosing a color
+        color_button = tk.Button(control_frame, text='Choose Color', command=self.choose_color)
+        color_button.pack(side=tk.TOP, pady=5)
+
         self.line_width_slider.bind("<Motion>", self.on_line_width_change)
+
 
 
     def on_line_width_change(self, event=None):
         new_width = self.line_width_slider.get()
         self.canvas_manager.line_width = new_width
+
+    def choose_color(self):
+        # Tkinter color chooser dialog
+        color_code = tk.colorchooser.askcolor(title="Choose color")
+        if color_code[1] is not None:
+            self.canvas_manager.set_color(color_code[1])
 
 
 
