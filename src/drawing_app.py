@@ -1,16 +1,39 @@
 import tkinter as tk
-from tkinter import simpledialog, colorchooser  # Import colorchooser here
+from tkinter import simpledialog, colorchooser
 from PIL import Image, ImageDraw
 import math
+
+class SymmetryManager:
+    def __init__(self, width, height, symmetry=8):
+        self.width = width
+        self.height = height
+        self.symmetry = symmetry
+
+    def set_symmetry(self, symmetry):
+        self.symmetry = symmetry
+
+    def calculate_rotated_points(self, x, y, old_x, old_y):
+        rotated_points = []
+        for i in range(self.symmetry):
+            angle = (2 * math.pi / self.symmetry) * i
+            rotated_points.append((self.rotate_point(x, y, angle), self.rotate_point(old_x, old_y, angle)))
+        return rotated_points
+
+    def rotate_point(self, x, y, angle):
+        center_x, center_y = self.width / 2, self.height / 2
+        x_translated, y_translated = x - center_x, y - center_y
+        x_rotated = x_translated * math.cos(angle) - y_translated * math.sin(angle)
+        y_rotated = x_translated * math.sin(angle) + y_translated * math.cos(angle)
+        return x_rotated + center_x, y_rotated + center_y
 
 class CanvasManager:
     def __init__(self, canvas, width, height):
         self.canvas = canvas
         self.width = width
         self.height = height
+        self.symmetry_manager = SymmetryManager(width, height)
         self.image = Image.new("RGB", (self.width, self.height), 'white')
         self.draw = ImageDraw.Draw(self.image)
-        self.symmetry = 8
         self.strokes = []
         self.current_stroke = []
         self.line_width = 1
@@ -19,39 +42,27 @@ class CanvasManager:
         self.old_y = None
 
     def set_symmetry(self, symmetry):
-        self.symmetry = symmetry
+        self.symmetry_manager.set_symmetry(symmetry)
 
     def paint(self, x, y):
-        if self.old_x and self.old_y:
-            for i in range(self.symmetry):
-                angle = (2 * math.pi / self.symmetry) * i
-                x_rotated, y_rotated = self.rotate_point(x, y, angle)
-                x_old_rotated, y_old_rotated = self.rotate_point(self.old_x, self.old_y, angle)
-                self.canvas.create_line((x_rotated, y_rotated, x_old_rotated, y_old_rotated),
-                                        width=self.line_width, fill=self.color,
+        if self.old_x is not None and self.old_y is not None:
+            points = self.symmetry_manager.calculate_rotated_points(x, y, self.old_x, self.old_y)
+            for point in points:
+                self.canvas.create_line(point, width=self.line_width, fill=self.color,
                                         capstyle=tk.ROUND, smooth=tk.TRUE, splinesteps=36)
-                self.current_stroke.append((x_rotated, y_rotated, x_old_rotated, y_old_rotated))
+                self.current_stroke.append(point)
 
-        self.old_x = x
-        self.old_y = y
+        self.old_x, self.old_y = x, y
 
     def record_stroke(self):
         if self.current_stroke:
             self.strokes.append(self.current_stroke)
             self.current_stroke = []
-        self.reset()
+            self.reset()
 
     def reset(self):
         self.old_x = None
         self.old_y = None
-
-    def rotate_point(self, x, y, angle):
-        cx, cy = self.width / 2, self.height / 2
-        x -= cx
-        y -= cy
-        new_x = x * math.cos(angle) - y * math.sin(angle)
-        new_y = x * math.sin(angle) + y * math.cos(angle)
-        return new_x + cx, new_y + cy
 
     def undo(self):
         if self.strokes:
@@ -67,17 +78,7 @@ class CanvasManager:
             for line in stroke:
                 self.canvas.create_line(line, width=self.line_width, fill=self.color, capstyle=tk.ROUND, smooth=tk.TRUE, splinesteps=36)
                 self.draw.line(line, fill=self.color, width=self.line_width)
-    
-    def resize(self, new_width, new_height):
-        self.width = new_width
-        self.height = new_height
-        self.init_canvas()
-        self.redraw_canvas()
 
-    def zoom(self, factor):
-        self.canvas.scale("all", self.width / 2, self.height / 2, factor, factor)
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-    
     def set_color(self, new_color):
         self.color = new_color
 
@@ -87,84 +88,55 @@ class DrawingApp:
         self.canvas_width = width
         self.canvas_height = height
 
-        # Main frame to contain canvas and control panel
         main_frame = tk.Frame(self.root)
         main_frame.pack(side=tk.LEFT, padx=10, pady=10)
 
-        # Frame for control panel
         control_frame = tk.Frame(main_frame)
         control_frame.pack(side=tk.LEFT, padx=5, pady=5)
 
-        # Canvas setup
         self.canvas = tk.Canvas(main_frame, bg='white', width=self.canvas_width, height=self.canvas_height)
         self.canvas.pack(side=tk.RIGHT, padx=10, pady=10)
         self.canvas_manager = CanvasManager(self.canvas, self.canvas_width, self.canvas_height)
 
-        # Adding controls to the control panel
         self.add_controls(control_frame)
+        self.setup_bindings()
 
-        self.setup()
-        self.bind_mouse_wheel()
-
-    def setup(self):
+    def setup_bindings(self):
         self.canvas.bind('<B1-Motion>', self.on_paint)
         self.canvas.bind('<ButtonRelease-1>', self.on_release)
-
-    def add_controls(self, control_frame):
-        # Button for setting symmetry
-        symmetry_button = tk.Button(control_frame, text='Set Symmetry', command=self.set_symmetry)
-        symmetry_button.pack(side=tk.TOP, pady=5)
-
-        # Button for undo action
-        undo_button = tk.Button(control_frame, text='Undo', command=self.canvas_manager.undo)
-        undo_button.pack(side=tk.TOP, pady=5)
-
-        # Button to zoom in
-        zoom_in_button = tk.Button(control_frame, text='Zoom In', command=lambda: self.canvas_manager.zoom(1.1))
-        zoom_in_button.pack(side=tk.TOP, pady=5)
-
-        # Button to zoom out
-        zoom_out_button = tk.Button(control_frame, text='Zoom Out', command=lambda: self.canvas_manager.zoom(0.9))
-        zoom_out_button.pack(side=tk.TOP, pady=5)
-
-        # Slider for adjusting line width
-        self.line_width_slider = tk.Scale(control_frame, from_=1, to=20, orient=tk.HORIZONTAL, label="Line Width", length=300)
-        self.line_width_slider.set(1)  # Default line width
-        self.line_width_slider.pack(side=tk.TOP, pady=5)
-
-        # Button for choosing a color
-        color_button = tk.Button(control_frame, text='Choose Color', command=self.choose_color)
-        color_button.pack(side=tk.TOP, pady=5)
-
-        self.line_width_slider.bind("<Motion>", self.on_line_width_change)
-
-
-
-    def on_line_width_change(self, event=None):
-        new_width = self.line_width_slider.get()
-        self.canvas_manager.line_width = new_width
-
-    def choose_color(self):
-        # Tkinter color chooser dialog
-        color_code = tk.colorchooser.askcolor(title="Choose color")
-        if color_code[1] is not None:
-            self.canvas_manager.set_color(color_code[1])
-
-
-
-    def bind_mouse_wheel(self):
-        # Bind mouse wheel event for zooming
         self.canvas.bind("<MouseWheel>", self.on_mouse_wheel)  # For Windows and MacOS
         self.canvas.bind("<Button-4>", self.on_mouse_wheel)    # For Linux (Scroll Up)
         self.canvas.bind("<Button-5>", self.on_mouse_wheel)    # For Linux (Scroll Down)
 
-    def on_mouse_wheel(self, event):
-        # Adjust the zoom factor as needed
-        zoom_factor = 1.1
-        if event.num == 5 or (event.delta < 0):  # Scroll down or mouse wheel down
-            zoom_factor = 0.9
+    def add_controls(self, control_frame):
+        tk.Button(control_frame, text='Set Symmetry', command=self.set_symmetry).pack(side=tk.TOP, pady=5)
+        tk.Button(control_frame, text='Undo', command=self.canvas_manager.undo).pack(side=tk.TOP, pady=5)
+        tk.Button(control_frame, text='Zoom In', command=lambda: self.zoom(1.1)).pack(side=tk.TOP, pady=5)
+        tk.Button(control_frame, text='Zoom Out', command=lambda: self.zoom(0.9)).pack(side=tk.TOP, pady=5)
 
-        self.canvas_manager.zoom(zoom_factor)
+        self.line_width_slider = tk.Scale(control_frame, from_=1, to=20, orient=tk.HORIZONTAL, label="Line Width", length=300)
+        self.line_width_slider.set(1)
+        self.line_width_slider.pack(side=tk.TOP, pady=5)
+        self.line_width_slider.bind("<Motion>", self.on_line_width_change)
+
+        tk.Button(control_frame, text='Choose Color', command=self.choose_color).pack(side=tk.TOP, pady=5)
+
+    def on_line_width_change(self, event=None):
+        self.canvas_manager.line_width = self.line_width_slider.get()
+
+    def choose_color(self):
+        color_code = colorchooser.askcolor(title="Choose color")
+        if color_code[1] is not None:
+            self.canvas_manager.set_color(color_code[1])
+
+    def on_mouse_wheel(self, event):
+        zoom_factor = 0.9 if event.num == 5 or event.delta < 0 else 1.1
+        self.zoom(zoom_factor)
+
+    def zoom(self, factor):
+        self.canvas.scale("all", self.canvas_width / 2, self.canvas_height / 2, factor, factor)
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
 
     def set_symmetry(self):
         symmetry = simpledialog.askinteger("Symmetry", "Enter number of axes:", minvalue=1)
@@ -177,14 +149,9 @@ class DrawingApp:
     def on_release(self, event):
         self.canvas_manager.record_stroke()
 
-    def resize_canvas(self, new_width, new_height):
-        self.canvas.config(width=new_width, height=new_height)
-        self.canvas_manager.resize(new_width, new_height)
-
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Symmetrical Drawing App")
-
     canvas_size = 1800
-    app = DrawingApp(root, canvas_size, canvas_size)  # Pass initial size here
+    app = DrawingApp(root, canvas_size, canvas_size)
     root.mainloop()
