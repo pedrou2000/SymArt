@@ -10,7 +10,7 @@ class CanvasManager:
         self.height = height
         self.image = Image.new("RGB", (self.width, self.height), 'white')
         self.draw = ImageDraw.Draw(self.image)
-        self.symmetry = 128
+        self.symmetry = 8
         self.strokes = []
         self.current_stroke = []
         self.line_width = 1
@@ -74,6 +74,11 @@ class CanvasManager:
         self.init_canvas()
         self.redraw_canvas()
 
+    def zoom(self, factor):
+        self.canvas.scale("all", self.width / 2, self.height / 2, factor, factor)
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+
 class DrawingApp:
     def __init__(self, root, width=800, height=600):
         self.root = root
@@ -85,16 +90,56 @@ class DrawingApp:
        
         self.setup()
         self.add_controls()
+        self.bind_mouse_wheel()
+
 
     def setup(self):
         self.canvas.bind('<B1-Motion>', self.on_paint)
         self.canvas.bind('<ButtonRelease-1>', self.on_release)
 
     def add_controls(self):
-        symmetry_button = tk.Button(self.root, text='Set Symmetry', command=self.set_symmetry)
-        symmetry_button.pack(side=tk.TOP, pady=5)
-        undo_button = tk.Button(self.root, text='Undo', command=self.canvas_manager.undo)
-        undo_button.pack(side=tk.TOP, pady=5)
+        control_frame = tk.Frame(self.root)
+        control_frame.pack(side=tk.TOP, pady=5)
+
+        symmetry_button = tk.Button(control_frame, text='Set Symmetry', command=self.set_symmetry)
+        symmetry_button.pack(side=tk.LEFT, padx=5)
+
+        undo_button = tk.Button(control_frame, text='Undo', command=self.canvas_manager.undo)
+        undo_button.pack(side=tk.LEFT, padx=5)
+
+        zoom_in_button = tk.Button(control_frame, text='Zoom In', command=lambda: self.canvas_manager.zoom(1.1))
+        zoom_in_button.pack(side=tk.LEFT, padx=5)
+
+        zoom_out_button = tk.Button(control_frame, text='Zoom Out', command=lambda: self.canvas_manager.zoom(0.9))
+        zoom_out_button.pack(side=tk.LEFT, padx=5)
+
+        # Slider for adjusting line width (made wider for easier sliding)
+        self.line_width_slider = tk.Scale(self.root, from_=1, to=20, orient=tk.HORIZONTAL, label="Line Width", length=300)
+        self.line_width_slider.set(1)  # Default line width
+        self.line_width_slider.pack(side=tk.TOP, pady=5)
+
+        self.line_width_slider.bind("<Motion>", self.on_line_width_change)
+
+
+    def on_line_width_change(self, event=None):
+        new_width = self.line_width_slider.get()
+        self.canvas_manager.line_width = new_width
+
+
+
+    def bind_mouse_wheel(self):
+        # Bind mouse wheel event for zooming
+        self.canvas.bind("<MouseWheel>", self.on_mouse_wheel)  # For Windows and MacOS
+        self.canvas.bind("<Button-4>", self.on_mouse_wheel)    # For Linux (Scroll Up)
+        self.canvas.bind("<Button-5>", self.on_mouse_wheel)    # For Linux (Scroll Down)
+
+    def on_mouse_wheel(self, event):
+        # Adjust the zoom factor as needed
+        zoom_factor = 1.1
+        if event.num == 5 or (event.delta < 0):  # Scroll down or mouse wheel down
+            zoom_factor = 0.9
+
+        self.canvas_manager.zoom(zoom_factor)
 
     def set_symmetry(self):
         symmetry = simpledialog.askinteger("Symmetry", "Enter number of axes:", minvalue=1)
