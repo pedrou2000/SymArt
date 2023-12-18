@@ -3,46 +3,25 @@ from tkinter import simpledialog
 from PIL import Image, ImageDraw
 import math
 
-class DrawingApp:
-    def __init__(self, root):
-        self.root = root
-        self.canvas = tk.Canvas(root, bg='white', width=800, height=600)
-        self.canvas.pack(padx=10, pady=10)
-
-        self.image = Image.new("RGB", (800, 600), 'white')
+class CanvasManager:
+    def __init__(self, canvas, width=800, height=600):
+        self.canvas = canvas
+        self.width = width
+        self.height = height
+        self.image = Image.new("RGB", (self.width, self.height), 'white')
         self.draw = ImageDraw.Draw(self.image)
-
-        self.setup()
-        self.add_controls()
-
-    def setup(self):
-        self.old_x = None
-        self.old_y = None
+        self.symmetry = 4
+        self.strokes = []
+        self.current_stroke = []
         self.line_width = 1
         self.color = 'black'
-        self.symmetry = 4  # Default number of symmetry axes
-        self.strokes = []  # List to store strokes
-        self.current_stroke = []  # Temporary storage for the current stroke
-        self.canvas.bind('<ButtonRelease-1>', self.record_stroke)  # Only one binding is needed
+        self.old_x = None
+        self.old_y = None
 
+    def set_symmetry(self, symmetry):
+        self.symmetry = symmetry
 
-        self.canvas.bind('<B1-Motion>', self.paint)
-        # self.canvas.bind('<ButtonRelease-1>', self.reset)
-
-    def add_controls(self):
-        symmetry_button = tk.Button(self.root, text='Set Symmetry', command=self.set_symmetry)
-        symmetry_button.pack(side=tk.TOP, pady=5)
-        undo_button = tk.Button(self.root, text='Undo', command=self.undo)
-        undo_button.pack(side=tk.TOP, pady=5)
-
-    def set_symmetry(self):
-        try:
-            self.symmetry = simpledialog.askinteger("Symmetry", "Enter number of axes:", minvalue=1, maxvalue=36)
-        except TypeError:
-            pass  # User cancelled the dialog; do nothing
-
-    def paint(self, event):
-        x, y = event.x, event.y
+    def paint(self, x, y):
         if self.old_x and self.old_y:
             for i in range(self.symmetry):
                 angle = (2 * math.pi / self.symmetry) * i
@@ -51,50 +30,74 @@ class DrawingApp:
                 self.canvas.create_line((x_rotated, y_rotated, x_old_rotated, y_old_rotated),
                                         width=self.line_width, fill=self.color,
                                         capstyle=tk.ROUND, smooth=tk.TRUE, splinesteps=36)
-                # Store line in current stroke
                 self.current_stroke.append((x_rotated, y_rotated, x_old_rotated, y_old_rotated))
 
         self.old_x = x
         self.old_y = y
 
-    def record_stroke(self, event):
+    def record_stroke(self):
         if self.current_stroke:
             self.strokes.append(self.current_stroke)
-            self.current_stroke = []  # Reset current stroke
-        self.reset(event)  # Reset the old_x and old_y
+            self.current_stroke = []
+        self.reset()
 
-    def reset(self, event):
+    def reset(self):
         self.old_x = None
         self.old_y = None
 
     def rotate_point(self, x, y, angle):
-        # Rotating a point around the center of the canvas
-        cx, cy = 800 / 2, 600 / 2
+        cx, cy = self.width / 2, self.height / 2
         x -= cx
         y -= cy
         new_x = x * math.cos(angle) - y * math.sin(angle)
         new_y = x * math.sin(angle) + y * math.cos(angle)
         return new_x + cx, new_y + cy
 
-    
     def undo(self):
         if self.strokes:
-            self.strokes.pop()  # Remove the last grouped stroke
-            print("Undo performed, remaining strokes:", len(self.strokes))  # Debug print
+            self.strokes.pop()
             self.redraw_canvas()
 
     def redraw_canvas(self):
-        self.canvas.delete("all")  # Clear the canvas
-        self.image = Image.new("RGB", (800, 600), 'white')  # Reset the image
-        self.draw = ImageDraw.Draw(self.image)  # Reset the draw object
+        self.canvas.delete("all")
+        self.image = Image.new("RGB", (self.width, self.height), 'white')
+        self.draw = ImageDraw.Draw(self.image)
 
         for stroke in self.strokes:
             for line in stroke:
-                # Redraw each line in the stroke
                 self.canvas.create_line(line, width=self.line_width, fill=self.color, capstyle=tk.ROUND, smooth=tk.TRUE, splinesteps=36)
-                self.draw.line(line, fill=self.color, width=self.line_width)  # Redraw on PIL image
+                self.draw.line(line, fill=self.color, width=self.line_width)
 
+class DrawingApp:
+    def __init__(self, root):
+        self.root = root
+        self.canvas = tk.Canvas(root, bg='white', width=800, height=600)
+        self.canvas.pack(padx=10, pady=10)
+        self.canvas_manager = CanvasManager(self.canvas)
 
+        self.setup()
+        self.add_controls()
+
+    def setup(self):
+        self.canvas.bind('<B1-Motion>', self.on_paint)
+        self.canvas.bind('<ButtonRelease-1>', self.on_release)
+
+    def add_controls(self):
+        symmetry_button = tk.Button(self.root, text='Set Symmetry', command=self.set_symmetry)
+        symmetry_button.pack(side=tk.TOP, pady=5)
+        undo_button = tk.Button(self.root, text='Undo', command=self.canvas_manager.undo)
+        undo_button.pack(side=tk.TOP, pady=5)
+
+    def set_symmetry(self):
+        symmetry = simpledialog.askinteger("Symmetry", "Enter number of axes:", minvalue=1, maxvalue=36)
+        if symmetry is not None:
+            self.canvas_manager.set_symmetry(symmetry)
+
+    def on_paint(self, event):
+        self.canvas_manager.paint(event.x, event.y)
+
+    def on_release(self, event):
+        self.canvas_manager.record_stroke()
 
 if __name__ == '__main__':
     root = tk.Tk()
