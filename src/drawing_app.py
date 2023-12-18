@@ -4,13 +4,13 @@ from PIL import Image, ImageDraw
 import math
 
 class CanvasManager:
-    def __init__(self, canvas, width=800, height=600):
+    def __init__(self, canvas, width, height):
         self.canvas = canvas
         self.width = width
         self.height = height
         self.image = Image.new("RGB", (self.width, self.height), 'white')
         self.draw = ImageDraw.Draw(self.image)
-        self.symmetry = 4
+        self.symmetry = 128
         self.strokes = []
         self.current_stroke = []
         self.line_width = 1
@@ -67,14 +67,22 @@ class CanvasManager:
             for line in stroke:
                 self.canvas.create_line(line, width=self.line_width, fill=self.color, capstyle=tk.ROUND, smooth=tk.TRUE, splinesteps=36)
                 self.draw.line(line, fill=self.color, width=self.line_width)
+    
+    def resize(self, new_width, new_height):
+        self.width = new_width
+        self.height = new_height
+        self.init_canvas()
+        self.redraw_canvas()
 
 class DrawingApp:
-    def __init__(self, root):
+    def __init__(self, root, width=800, height=600):
         self.root = root
-        self.canvas = tk.Canvas(root, bg='white', width=800, height=600)
+        self.canvas_width = width
+        self.canvas_height = height
+        self.canvas = tk.Canvas(root, bg='white', width=self.canvas_width, height=self.canvas_height)
         self.canvas.pack(padx=10, pady=10)
-        self.canvas_manager = CanvasManager(self.canvas)
-
+        self.canvas_manager = CanvasManager(self.canvas, self.canvas_width, self.canvas_height)
+       
         self.setup()
         self.add_controls()
 
@@ -89,7 +97,7 @@ class DrawingApp:
         undo_button.pack(side=tk.TOP, pady=5)
 
     def set_symmetry(self):
-        symmetry = simpledialog.askinteger("Symmetry", "Enter number of axes:", minvalue=1, maxvalue=36)
+        symmetry = simpledialog.askinteger("Symmetry", "Enter number of axes:", minvalue=1)
         if symmetry is not None:
             self.canvas_manager.set_symmetry(symmetry)
 
@@ -99,8 +107,14 @@ class DrawingApp:
     def on_release(self, event):
         self.canvas_manager.record_stroke()
 
+    def resize_canvas(self, new_width, new_height):
+        self.canvas.config(width=new_width, height=new_height)
+        self.canvas_manager.resize(new_width, new_height)
+
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Symmetrical Drawing App")
-    app = DrawingApp(root)
+
+    canvas_size = 1800
+    app = DrawingApp(root, canvas_size, canvas_size)  # Pass initial size here
     root.mainloop()
