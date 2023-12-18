@@ -1,7 +1,9 @@
 import tkinter as tk
-from tkinter import simpledialog, colorchooser
+from tkinter import simpledialog, colorchooser, filedialog
 from PIL import Image, ImageDraw
 import math
+import io
+import svgwrite
 
 class SymmetryManager:
     def __init__(self, width, height, symmetry=8):
@@ -104,6 +106,56 @@ class CanvasManager:
         elif self.drawing_mode == 'freehand':
             self.record_stroke()
 
+    def clear_canvas(self):
+        self.canvas.delete("all")
+        self.image = Image.new("RGB", (self.width, self.height), 'white')
+        self.draw = ImageDraw.Draw(self.image)
+        self.strokes.clear()
+        self.reset()
+
+    def save_image(self):
+        file_path = filedialog.asksaveasfilename(defaultextension='.png',
+                                                 filetypes=[("PNG files", "*.png"),
+                                                            ("JPEG files", "*.jpg"),
+                                                            ("All files", "*.*")])
+        if file_path:
+            self.image.save(file_path)
+
+    def save_canvas(self):
+        # Get the canvas content as a Postscript file
+        ps = self.canvas.postscript(colormode='color')
+
+        # Use a BytesIO buffer as a file-like object
+        buffer = io.BytesIO(ps.encode('utf-8'))
+
+        # Open the buffer as an image using Pillow
+        with Image.open(buffer) as img:
+            # Convert to a more common file format like PNG
+            img = img.convert('RGB')
+
+            # Open a file dialog to save the image
+            file_path = filedialog.asksaveasfilename(defaultextension='.png',
+                                                     filetypes=[("PNG files", "*.png"),
+                                                                ("JPEG files", "*.jpg"),
+                                                                ("All files", "*.*")])
+            if file_path:
+                img.save(file_path)
+
+        # Close the buffer
+        buffer.close()
+
+    def save_as_svg(self):
+        svg_filename = filedialog.asksaveasfilename(defaultextension='.svg',
+                                                    filetypes=[("SVG files", "*.svg"),
+                                                               ("All files", "*.*")])
+        if svg_filename:
+            dwg = svgwrite.Drawing(svg_filename, size=(self.width, self.height))
+            for stroke in self.strokes:
+                for line in stroke:
+                    start, end = line
+                    dwg.add(dwg.line(start=start, end=end, stroke=self.color, stroke_width=self.line_width))
+            dwg.save()
+
 class DrawingApp:
     def __init__(self, root, width=800, height=600):
         self.root = root
@@ -137,6 +189,8 @@ class DrawingApp:
         tk.Button(control_frame, text='Zoom Out', command=lambda: self.zoom(0.9)).pack(side=tk.TOP, pady=5)
         tk.Button(control_frame, text='Straight Line Mode', command=lambda: self.canvas_manager.set_drawing_mode('straight_line')).pack(side=tk.TOP, pady=5)
         tk.Button(control_frame, text='Freehand Mode', command=lambda: self.canvas_manager.set_drawing_mode('freehand')).pack(side=tk.TOP, pady=5)
+        tk.Button(control_frame, text='Clear Canvas', command=self.clear_canvas).pack(side=tk.TOP, pady=5)
+        tk.Button(control_frame, text='Save as Image', command=self.save_canvas).pack(side=tk.TOP, pady=5)
 
 
         self.line_width_slider = tk.Scale(control_frame, from_=1, to=20, orient=tk.HORIZONTAL, label="Line Width", length=300)
@@ -173,6 +227,11 @@ class DrawingApp:
     def on_release(self, event):
         self.canvas_manager.on_release(event)
 
+    def clear_canvas(self):
+        self.canvas_manager.clear_canvas()
+    
+    def save_canvas(self):
+        self.canvas_manager.save_as_svg()
 
 if __name__ == '__main__':
     root = tk.Tk()
