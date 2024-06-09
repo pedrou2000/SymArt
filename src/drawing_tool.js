@@ -23,6 +23,8 @@ function setupButtonListeners() {
     document.getElementById('pencilColorButton').addEventListener('click', togglePencilOptions);
     document.getElementById('pencilWidthButton').addEventListener('click', togglePencilOptions);
     document.getElementById('downloadButton').addEventListener('click', downloadCanvas);
+    document.getElementById('undoButton').addEventListener('click', undo);
+    document.getElementById('redoButton').addEventListener('click', redo);
 }
 
 function setupInputListeners() {
@@ -101,16 +103,20 @@ function adjustCanvasLayout() {
 }
 
 // Canvas and drawing related functions
+let history = [];
+let historyIndex = -1;
+
 function setup() {
     createCanvasInContainer();
     setInitialCanvasState();
+    saveCanvasState(); // Save initial state
 }
 
 function createCanvasInContainer() {
     const canvasContainer = document.getElementById('canvas-container');
     const cw = canvasContainer.offsetWidth;
     const ch = canvasContainer.offsetHeight;
-    const canvas = createCanvas(cw, ch, SVG);
+    const canvas = createCanvas(cw, ch, P2D); // Use P2D for pixel manipulation
     canvas.parent('canvas-container');
 }
 
@@ -125,6 +131,7 @@ function clearCanvas() {
 
 function draw() {
     if (shouldDraw()) {
+        saveCanvasState(); // Save state before drawing
         const x = mouseX - width / 2;
         const y = mouseY - height / 2;
         const px = pmouseX - width / 2;
@@ -153,6 +160,32 @@ function drawLineInSymmetry(x, y, px, py, angle, index) {
     pop();
 }
 
+function saveCanvasState() {
+    history = history.slice(0, historyIndex + 1); // Discard redo states
+    let currentPixels = get(); // Use get() to capture the canvas
+    history.push(currentPixels);
+    historyIndex++;
+}
+
+function restoreCanvasState(pixelsData) {
+    clearCanvas();
+    image(pixelsData, 0, 0); // Use image() to restore the canvas
+}
+
+function undo() {
+    if (historyIndex > 0) {
+        historyIndex--;
+        restoreCanvasState(history[historyIndex]);
+    }
+}
+
+function redo() {
+    if (historyIndex < history.length - 1) {
+        historyIndex++;
+        restoreCanvasState(history[historyIndex]);
+    }
+}
+
 // Helper functions for UI interactions
 function mouseIsOverSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -179,7 +212,6 @@ function windowResized() {
 function downloadCanvas() {
     // saveCanvas('myCanvas', 'png');
     save('myCanvas.svg');
-
 }
 
 // Call setup function on window load
