@@ -1,6 +1,7 @@
 const Mode = {
     SYMMETRY: 'symmetry',
-    RADIAL: 'radial'
+    RADIAL: 'radial',
+    ERASER: 'eraser'
 };
 
 let currentMode = Mode.SYMMETRY;
@@ -25,6 +26,9 @@ function setupButtonListeners() {
     document.getElementById('downloadButton').addEventListener('click', downloadCanvas);
     document.getElementById('undoButton').addEventListener('click', undo);
     document.getElementById('redoButton').addEventListener('click', redo);
+    document.getElementById('undoButton10').addEventListener('click', undo10);
+    document.getElementById('redoButton10').addEventListener('click', redo10);
+    document.getElementById('eraserButton').addEventListener('click', () => toggleMode(Mode.ERASER));
 }
 
 function setupInputListeners() {
@@ -122,11 +126,13 @@ function createCanvasInContainer() {
 
 function setInitialCanvasState() {
     clearCanvas();
+    changeBackgroundColor({ target: { value: '#ffffff' } }); // Set initial background color to white
+
 }
 
 function clearCanvas() {
     clear();
-    background(255);
+    background(0);
 }
 
 function draw() {
@@ -156,6 +162,10 @@ function drawLineInSymmetry(x, y, px, py, angle, index) {
     translate(width / 2, height / 2);
     rotate(angle * index);
     if (currentMode === Mode.SYMMETRY && index % 2 === 1) scale(1, -1);
+    if (currentMode === Mode.ERASER) {
+        strokeWeight(document.getElementById('pencilWidthRange').value);
+        stroke(getBackgroundColor());
+    }
     line(currentMode === Mode.RADIAL ? 0 : x, currentMode === Mode.RADIAL ? 0 : y, px, py);
     pop();
 }
@@ -179,9 +189,23 @@ function undo() {
     }
 }
 
+function undo10() {
+    if (historyIndex > 0) {
+        historyIndex = Math.max(historyIndex - 10, 0);
+        restoreCanvasState(history[historyIndex]);
+    }
+}
+
 function redo() {
     if (historyIndex < history.length - 1) {
         historyIndex++;
+        restoreCanvasState(history[historyIndex]);
+    }
+}
+
+function redo10() {
+    if (historyIndex < history.length - 1) {
+        historyIndex = Math.min(historyIndex + 10, history.length - 1);
         restoreCanvasState(history[historyIndex]);
     }
 }
@@ -200,7 +224,7 @@ function mouseOverCanvas() {
 function mouseIsOverGearIcon() {
     const gearIconRect = document.getElementById('gearIcon').getBoundingClientRect();
     return mouseX >= gearIconRect.left && mouseX <= gearIconRect.right &&
-           mouseY >= gearIconRect.top && mouseY <= gearIconRect.bottom;
+        mouseY >= gearIconRect.top && mouseY <= gearIconRect.bottom;
 }
 
 // Window resize handling
@@ -212,6 +236,10 @@ function windowResized() {
 function downloadCanvas() {
     // saveCanvas('myCanvas', 'png');
     save('myCanvas.svg');
+}
+
+function getBackgroundColor() {
+    return document.getElementById('bgColorPicker').value;
 }
 
 // Call setup function on window load
